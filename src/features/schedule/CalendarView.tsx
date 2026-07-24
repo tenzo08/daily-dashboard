@@ -53,18 +53,18 @@ export function CalendarView({
   return (
     <div className="flex flex-1 flex-col p-4">
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={onPrevMonth} className="rounded px-2 py-1 text-sm hover:bg-neutral-100">
+        <button type="button" onClick={onPrevMonth} className="rounded-control px-2 py-1 text-sm text-graphite-dim hover:bg-line/40">
           ‹
         </button>
-        <span className="text-sm font-medium">{monthLabel}</span>
-        <button type="button" onClick={onNextMonth} className="rounded px-2 py-1 text-sm hover:bg-neutral-100">
+        <span className="text-sm font-medium text-graphite">{monthLabel}</span>
+        <button type="button" onClick={onNextMonth} className="rounded-control px-2 py-1 text-sm text-graphite-dim hover:bg-line/40">
           ›
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-px overflow-hidden rounded border border-neutral-200 bg-neutral-200 text-xs">
+      <div className="grid flex-1 grid-cols-7 gap-px overflow-hidden rounded-card border border-line bg-line text-xs">
         {WEEKDAY_LABELS.map((label) => (
-          <div key={label} className="bg-neutral-50 px-2 py-1 text-center font-medium text-neutral-500">
+          <div key={label} className="bg-paper px-2 py-1 text-center font-medium text-graphite-dim">
             {label}
           </div>
         ))}
@@ -78,24 +78,24 @@ export function CalendarView({
               key={key}
               type="button"
               onClick={() => onSelectDate(date)}
-              className={`min-h-16 bg-white p-1 text-left align-top ${
-                isSelected ? 'ring-2 ring-inset ring-neutral-900' : ''
-              } ${isCurrentMonth ? '' : 'text-neutral-300'}`}
+              className={`min-h-16 bg-surface p-1 text-left align-top ${
+                isSelected ? 'ring-2 ring-inset ring-brass' : ''
+              } ${isCurrentMonth ? '' : 'text-graphite-dim/50'}`}
             >
-              <span className="text-xs">{date.getDate()}</span>
+              <span className="font-mono text-xs tabular-nums">{date.getDate()}</span>
               <div className="mt-0.5 space-y-0.5">
                 {dayOccurrences.slice(0, 3).map((occ) => (
                   <div
                     key={`${occ.itemId}-${occ.occurrenceAt}`}
-                    className={`truncate rounded bg-neutral-100 px-1 text-[10px] ${
-                      occ.completed ? 'text-neutral-400 line-through' : 'text-neutral-700'
+                    className={`truncate rounded bg-muted-tint px-1 text-[10px] ${
+                      occ.completed ? 'text-graphite-dim line-through' : 'text-graphite'
                     }`}
                   >
                     {occ.title}
                   </div>
                 ))}
                 {dayOccurrences.length > 3 && (
-                  <div className="text-[10px] text-neutral-400">+{dayOccurrences.length - 3} more</div>
+                  <div className="text-[10px] text-graphite-dim">+{dayOccurrences.length - 3} more</div>
                 )}
               </div>
             </button>

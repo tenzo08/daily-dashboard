@@ -41,7 +41,7 @@ export function NotesScreen(): JSX.Element {
   }
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full flex-1">
       <FolderTree
         folders={folders}
         selectedFolderId={selectedFolderId}
@@ -68,7 +68,7 @@ export function NotesScreen(): JSX.Element {
           onTagsChanged={refreshTags}
         />
       ) : (
-        <div className="flex flex-1 items-center justify-center text-sm text-neutral-400">
+        <div className="flex flex-1 items-center justify-center text-sm text-graphite-dim">
           Select or create a note
         </div>
       )}

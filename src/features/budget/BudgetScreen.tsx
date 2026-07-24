@@ -19,15 +19,15 @@ export function BudgetScreen(): JSX.Element {
   const bump = (): void => setRefreshKey((k) => k + 1)
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex gap-1 border-b border-neutral-200 p-3">
+    <div className="flex h-full flex-1 flex-col">
+      <div className="flex gap-1 border-b border-line p-3">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setView(tab.id)}
-            className={`rounded px-3 py-1 text-sm ${
-              view === tab.id ? 'bg-neutral-900 text-white' : 'hover:bg-neutral-100'
+            className={`rounded-control px-3 py-1 text-sm ${
+              view === tab.id ? 'bg-brass-tint font-medium text-graphite' : 'text-graphite-dim hover:bg-line/40'
             }`}
           >
             {tab.label}

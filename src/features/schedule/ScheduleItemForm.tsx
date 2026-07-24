@@ -133,63 +133,71 @@ export function ScheduleItemForm({
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/30">
-      <form onSubmit={handleSubmit} className="max-h-[90vh] w-96 overflow-auto rounded bg-white p-4 shadow-lg">
-        <h2 className="mb-3 text-sm font-semibold">{itemId ? 'Edit item' : 'New item'}</h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-void/40">
+      <form
+        onSubmit={handleSubmit}
+        className="max-h-[90vh] w-96 overflow-auto rounded-panel border border-line bg-surface p-4"
+      >
+        <h2 className="mb-3 text-sm font-semibold text-graphite">{itemId ? 'Edit item' : 'New item'}</h2>
 
-        <label className="mb-2 block text-xs text-neutral-500">
+        <label className="mb-2 block text-xs text-graphite-dim">
           Title
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             autoFocus
-            className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+            className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
           />
         </label>
 
-        <label className="mb-2 block text-xs text-neutral-500">
+        <label className="mb-2 block text-xs text-graphite-dim">
           Description
           <textarea
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+            className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
             rows={2}
           />
         </label>
 
         <div className="mb-2 flex items-end gap-2">
-          <label className="flex-1 text-xs text-neutral-500">
+          <label className="flex-1 text-xs text-graphite-dim">
             Date
             <input
               type="date"
               value={startDate}
               onChange={(event) => setStartDate(event.target.value)}
-              className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
             />
           </label>
           {!allDay && (
-            <label className="flex-1 text-xs text-neutral-500">
+            <label className="flex-1 text-xs text-graphite-dim">
               Time
               <input
                 type="time"
                 value={startTime}
                 onChange={(event) => setStartTime(event.target.value)}
-                className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+                className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
               />
             </label>
           )}
-          <label className="flex items-center gap-1 pb-1 text-xs text-neutral-500">
-            <input type="checkbox" checked={allDay} onChange={(event) => setAllDay(event.target.checked)} />
+          <label className="flex items-center gap-1 pb-1 text-xs text-graphite-dim">
+            <input
+              type="checkbox"
+              checked={allDay}
+              onChange={(event) => setAllDay(event.target.checked)}
+              className="accent-brass"
+            />
             All day
           </label>
         </div>
 
-        <label className="mb-2 block text-xs text-neutral-500">
+        <label className="mb-2 block text-xs text-graphite-dim">
           Repeat
           <select
             value={repeatFreq}
             onChange={(event) => setRepeatFreq(event.target.value as RepeatFreq)}
-            className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+            className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
           >
             <option value="none">Does not repeat</option>
             <option value="DAILY">Daily</option>
@@ -199,15 +207,15 @@ export function ScheduleItemForm({
         </label>
 
         {repeatFreq !== 'none' && (
-          <div className="mb-2 rounded border border-neutral-200 p-2">
-            <label className="mb-2 block text-xs text-neutral-500">
+          <div className="mb-2 rounded-control border border-line p-2">
+            <label className="mb-2 block text-xs text-graphite-dim">
               Every
               <input
                 type="number"
                 min={1}
                 value={interval}
                 onChange={(event) => setInterval(Math.max(1, Number(event.target.value)))}
-                className="ml-2 w-16 rounded border border-neutral-300 px-2 py-0.5 text-sm"
+                className="ml-2 w-16 rounded-control border border-line bg-paper px-2 py-0.5 text-sm text-graphite focus:border-brass focus:outline-none"
               />{' '}
               {repeatFreq === 'DAILY' ? 'day(s)' : repeatFreq === 'WEEKLY' ? 'week(s)' : 'month(s)'}
             </label>
@@ -219,8 +227,8 @@ export function ScheduleItemForm({
                     key={day.value}
                     type="button"
                     onClick={() => toggleByDay(day.value)}
-                    className={`h-6 w-6 rounded-full text-xs ${
-                      byDay.has(day.value) ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-600'
+                    className={`h-6 w-6 rounded-pill text-xs ${
+                      byDay.has(day.value) ? 'bg-brass text-graphite' : 'bg-muted-tint text-muted'
                     }`}
                   >
                     {day.label}
@@ -229,12 +237,12 @@ export function ScheduleItemForm({
               </div>
             )}
 
-            <label className="mb-1 block text-xs text-neutral-500">
+            <label className="mb-1 block text-xs text-graphite-dim">
               Ends
               <select
                 value={endType}
                 onChange={(event) => setEndType(event.target.value as EndType)}
-                className="ml-2 rounded border border-neutral-300 px-2 py-0.5 text-sm"
+                className="ml-2 rounded-control border border-line bg-paper px-2 py-0.5 text-sm text-graphite focus:border-brass focus:outline-none"
               >
                 <option value="never">Never</option>
                 <option value="onDate">On date</option>
@@ -246,7 +254,7 @@ export function ScheduleItemForm({
                 type="date"
                 value={endDate}
                 onChange={(event) => setEndDate(event.target.value)}
-                className="w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+                className="w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
               />
             )}
             {endType === 'afterCount' && (
@@ -255,39 +263,43 @@ export function ScheduleItemForm({
                 min={1}
                 value={endCount}
                 onChange={(event) => setEndCount(Math.max(1, Number(event.target.value)))}
-                className="w-20 rounded border border-neutral-300 px-2 py-1 text-sm"
+                className="w-20 rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
               />
             )}
           </div>
         )}
 
-        <label className="mb-3 block text-xs text-neutral-500">
+        <label className="mb-3 block text-xs text-graphite-dim">
           Remind me (minutes before, blank = no reminder)
           <input
             type="number"
             min={0}
             value={reminderMinutes}
             onChange={(event) => setReminderMinutes(event.target.value)}
-            className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+            className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
           />
         </label>
 
         <div className="flex items-center justify-between">
           <div>
             {itemId && (
-              <button type="button" onClick={onDelete} className="text-xs text-red-600 hover:underline">
+              <button type="button" onClick={onDelete} className="text-xs text-danger hover:underline">
                 Delete
               </button>
             )}
           </div>
           <div className="flex gap-2">
-            <button type="button" onClick={onCancel} className="rounded px-3 py-1.5 text-sm hover:bg-neutral-100">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-control px-3 py-1.5 text-sm text-graphite-dim hover:bg-line/40"
+            >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !title.trim()}
-              className="rounded bg-neutral-900 px-3 py-1.5 text-sm text-white disabled:opacity-40"
+              className="rounded-control bg-brass px-3 py-1.5 text-sm font-semibold text-graphite hover:bg-brass-bright disabled:opacity-40"
             >
               Save
             </button>

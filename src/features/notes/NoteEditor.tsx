@@ -89,45 +89,45 @@ export function NoteEditor({ noteId, onSaved, onTagsChanged }: NoteEditorProps):
   }
 
   return (
-    <div className="flex flex-1 flex-col">
-      <div className="flex items-center gap-2 border-b border-neutral-200 p-3">
+    <div className="flex flex-1 flex-col bg-surface">
+      <div className="flex items-center gap-2 border-b border-line p-3">
         <input
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          className="flex-1 border-none text-lg font-semibold outline-none"
+          className="flex-1 border-none bg-transparent text-lg font-semibold text-graphite outline-none"
           placeholder="Untitled"
         />
-        <span className="text-xs text-neutral-400">
+        <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
           {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved' : ''}
         </span>
       </div>
 
-      <div className="flex gap-1 border-b border-neutral-200 p-2">
+      <div className="flex gap-1 border-b border-line p-2">
         <button
           type="button"
           onClick={() => insertAtCursor('**', '**')}
-          className="rounded px-2 py-1 text-xs font-bold hover:bg-neutral-100"
+          className="rounded-control px-2 py-1 text-xs font-bold text-graphite-dim hover:bg-line/40"
         >
           B
         </button>
         <button
           type="button"
           onClick={() => insertAtCursor('_', '_')}
-          className="rounded px-2 py-1 text-xs italic hover:bg-neutral-100"
+          className="rounded-control px-2 py-1 text-xs italic text-graphite-dim hover:bg-line/40"
         >
           I
         </button>
         <button
           type="button"
           onClick={() => insertAtCursor('- ')}
-          className="rounded px-2 py-1 text-xs hover:bg-neutral-100"
+          className="rounded-control px-2 py-1 text-xs text-graphite-dim hover:bg-line/40"
         >
           List
         </button>
         <button
           type="button"
           onClick={() => insertAtCursor('- [ ] ')}
-          className="rounded px-2 py-1 text-xs hover:bg-neutral-100"
+          className="rounded-control px-2 py-1 text-xs text-graphite-dim hover:bg-line/40"
         >
           Checkbox
         </button>
@@ -137,21 +137,21 @@ export function NoteEditor({ noteId, onSaved, onTagsChanged }: NoteEditorProps):
         ref={textareaRef}
         value={bodyMd}
         onChange={(event) => setBodyMd(event.target.value)}
-        className="flex-1 resize-none p-4 font-mono text-sm outline-none"
+        className="flex-1 resize-none bg-surface p-4 text-sm text-graphite outline-none"
         placeholder="Start writing…"
       />
 
-      <div className="flex flex-wrap items-center gap-1 border-t border-neutral-200 p-2">
+      <div className="flex flex-wrap items-center gap-1 border-t border-line p-2">
         {noteTags.map((tag) => (
           <span
             key={tag.id}
-            className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600"
+            className="flex items-center gap-1 rounded-pill bg-muted-tint px-2 py-0.5 text-xs text-muted"
           >
             #{tag.name}
             <button
               type="button"
               onClick={() => handleRemoveTag(tag.id)}
-              className="text-neutral-400 hover:text-neutral-700"
+              className="text-muted hover:text-graphite"
             >
               ×
             </button>
@@ -162,7 +162,7 @@ export function NoteEditor({ noteId, onSaved, onTagsChanged }: NoteEditorProps):
           onChange={(event) => setNewTagName(event.target.value)}
           onKeyDown={(event) => event.key === 'Enter' && handleAddTag()}
           placeholder="+ tag"
-          className="w-20 rounded border border-neutral-300 px-2 py-0.5 text-xs"
+          className="w-20 rounded-control border border-line bg-paper px-2 py-0.5 text-xs text-graphite focus:border-brass focus:outline-none"
         />
       </div>
     </div>

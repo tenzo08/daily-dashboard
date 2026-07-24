@@ -55,9 +55,9 @@ export function TransactionForm({ accounts, onSaved, onCancel }: TransactionForm
   }
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/30">
-      <form onSubmit={handleSubmit} className="w-80 rounded bg-white p-4 shadow-lg">
-        <h2 className="mb-3 text-sm font-semibold">New transaction</h2>
+    <div className="fixed inset-0 flex items-center justify-center bg-void/40">
+      <form onSubmit={handleSubmit} className="w-80 rounded-panel border border-line bg-surface p-4">
+        <h2 className="mb-3 text-sm font-semibold text-graphite">New transaction</h2>
 
         <div className="mb-2 flex gap-1">
           {(['expense', 'income', 'transfer'] as TransactionType[]).map((t) => (
@@ -65,8 +65,8 @@ export function TransactionForm({ accounts, onSaved, onCancel }: TransactionForm
               key={t}
               type="button"
               onClick={() => setType(t)}
-              className={`flex-1 rounded px-2 py-1 text-xs capitalize ${
-                type === t ? 'bg-neutral-900 text-white' : 'bg-neutral-100 text-neutral-600'
+              className={`flex-1 rounded-control px-2 py-1 text-xs capitalize ${
+                type === t ? 'bg-brass text-graphite' : 'bg-muted-tint text-muted'
               }`}
             >
               {t}
@@ -74,12 +74,12 @@ export function TransactionForm({ accounts, onSaved, onCancel }: TransactionForm
           ))}
         </div>
 
-        <label className="mb-2 block text-xs text-neutral-500">
+        <label className="mb-2 block text-xs text-graphite-dim">
           {type === 'transfer' ? 'From account' : 'Account'}
           <select
             value={accountId}
             onChange={(event) => setAccountId(Number(event.target.value))}
-            className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+            className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
           >
             {accounts.map((account) => (
               <option key={account.id} value={account.id}>
@@ -90,12 +90,12 @@ export function TransactionForm({ accounts, onSaved, onCancel }: TransactionForm
         </label>
 
         {type === 'transfer' && (
-          <label className="mb-2 block text-xs text-neutral-500">
+          <label className="mb-2 block text-xs text-graphite-dim">
             To account
             <select
               value={transferAccountId}
               onChange={(event) => setTransferAccountId(Number(event.target.value))}
-              className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
             >
               <option value="">Select account</option>
               {accounts
@@ -110,12 +110,12 @@ export function TransactionForm({ accounts, onSaved, onCancel }: TransactionForm
         )}
 
         {type !== 'transfer' && (
-          <label className="mb-2 block text-xs text-neutral-500">
+          <label className="mb-2 block text-xs text-graphite-dim">
             Category
             <select
               value={categoryId}
               onChange={(event) => setCategoryId(event.target.value ? Number(event.target.value) : '')}
-              className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
             >
               <option value="">Uncategorized</option>
               {relevantCategories.map((category) => (
@@ -128,7 +128,7 @@ export function TransactionForm({ accounts, onSaved, onCancel }: TransactionForm
         )}
 
         <div className="mb-2 flex gap-2">
-          <label className="flex-1 text-xs text-neutral-500">
+          <label className="flex-1 text-xs text-graphite-dim">
             Amount
             <input
               type="number"
@@ -136,37 +136,41 @@ export function TransactionForm({ accounts, onSaved, onCancel }: TransactionForm
               step="0.01"
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
-              className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
             />
           </label>
-          <label className="flex-1 text-xs text-neutral-500">
+          <label className="flex-1 text-xs text-graphite-dim">
             Date
             <input
               type="date"
               value={occurredOn}
               onChange={(event) => setOccurredOn(event.target.value)}
-              className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+              className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
             />
           </label>
         </div>
 
-        <label className="mb-3 block text-xs text-neutral-500">
+        <label className="mb-3 block text-xs text-graphite-dim">
           Note
           <input
             value={note}
             onChange={(event) => setNote(event.target.value)}
-            className="mt-0.5 w-full rounded border border-neutral-300 px-2 py-1 text-sm"
+            className="mt-0.5 w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
           />
         </label>
 
         <div className="flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="rounded px-3 py-1.5 text-sm hover:bg-neutral-100">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-control px-3 py-1.5 text-sm text-graphite-dim hover:bg-line/40"
+          >
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving || !accountId || !amount}
-            className="rounded bg-neutral-900 px-3 py-1.5 text-sm text-white disabled:opacity-40"
+            className="rounded-control bg-brass px-3 py-1.5 text-sm font-semibold text-graphite hover:bg-brass-bright disabled:opacity-40"
           >
             Save
           </button>

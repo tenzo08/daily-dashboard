@@ -55,20 +55,24 @@ export function ScheduleScreen(): JSX.Element {
   const dayOccurrences = occurrences.filter((occ) => occ.occurrenceDate === selectedKey)
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b border-neutral-200 p-3">
+    <div className="flex h-full flex-1 flex-col">
+      <div className="flex items-center justify-between border-b border-line p-3">
         <div className="flex gap-1">
           <button
             type="button"
             onClick={() => setView('list')}
-            className={`rounded px-3 py-1 text-sm ${view === 'list' ? 'bg-neutral-900 text-white' : 'hover:bg-neutral-100'}`}
+            className={`rounded-control px-3 py-1 text-sm ${
+              view === 'list' ? 'bg-brass-tint font-medium text-graphite' : 'text-graphite-dim hover:bg-line/40'
+            }`}
           >
             List
           </button>
           <button
             type="button"
             onClick={() => setView('calendar')}
-            className={`rounded px-3 py-1 text-sm ${view === 'calendar' ? 'bg-neutral-900 text-white' : 'hover:bg-neutral-100'}`}
+            className={`rounded-control px-3 py-1 text-sm ${
+              view === 'calendar' ? 'bg-brass-tint font-medium text-graphite' : 'text-graphite-dim hover:bg-line/40'
+            }`}
           >
             Calendar
           </button>
@@ -77,14 +81,14 @@ export function ScheduleScreen(): JSX.Element {
           <button
             type="button"
             onClick={() => setSelectedDate(new Date())}
-            className="rounded px-3 py-1 text-sm hover:bg-neutral-100"
+            className="rounded-control px-3 py-1 text-sm text-graphite-dim hover:bg-line/40"
           >
             Today
           </button>
           <button
             type="button"
             onClick={() => setFormState({ mode: 'create', date: selectedDate })}
-            className="rounded bg-neutral-900 px-3 py-1 text-sm text-white"
+            className="rounded-control bg-brass px-3 py-1 text-sm font-semibold text-graphite hover:bg-brass-bright"
           >
             New
           </button>

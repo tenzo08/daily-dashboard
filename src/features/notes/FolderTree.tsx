@@ -29,12 +29,12 @@ export function FolderTree({
   }
 
   return (
-    <aside className="w-48 shrink-0 border-r border-neutral-200 bg-white p-3">
+    <aside className="w-48 shrink-0 border-r border-line bg-surface p-3">
       <button
         type="button"
         onClick={() => onSelectFolder(undefined)}
-        className={`mb-2 w-full rounded px-2 py-1.5 text-left text-sm ${
-          selectedFolderId === undefined ? 'bg-neutral-900 text-white' : 'hover:bg-neutral-100'
+        className={`mb-2 w-full rounded-control px-2 py-1.5 text-left text-sm ${
+          selectedFolderId === undefined ? 'bg-brass-tint font-medium text-graphite' : 'text-graphite-dim hover:bg-line/40'
         }`}
       >
         All Notes
@@ -46,8 +46,10 @@ export function FolderTree({
             <button
               type="button"
               onClick={() => onSelectFolder(folder.id)}
-              className={`w-full truncate rounded px-2 py-1.5 text-left text-sm ${
-                selectedFolderId === folder.id ? 'bg-neutral-900 text-white' : 'hover:bg-neutral-100'
+              className={`w-full truncate rounded-control px-2 py-1.5 text-left text-sm ${
+                selectedFolderId === folder.id
+                  ? 'bg-brass-tint font-medium text-graphite'
+                  : 'text-graphite-dim hover:bg-line/40'
               }`}
             >
               {folder.name}
@@ -62,12 +64,12 @@ export function FolderTree({
           onChange={(event) => setNewFolderName(event.target.value)}
           onKeyDown={(event) => event.key === 'Enter' && handleCreateFolder()}
           placeholder="New folder"
-          className="w-full min-w-0 rounded border border-neutral-300 px-2 py-1 text-xs"
+          className="w-full min-w-0 rounded-control border border-line bg-paper px-2 py-1 text-xs text-graphite focus:border-brass focus:outline-none"
         />
         <button
           type="button"
           onClick={handleCreateFolder}
-          className="shrink-0 rounded bg-neutral-900 px-2 text-xs text-white"
+          className="shrink-0 rounded-control bg-brass px-2 text-xs font-semibold text-graphite hover:bg-brass-bright"
         >
           +
         </button>
