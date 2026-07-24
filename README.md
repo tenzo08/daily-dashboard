@@ -6,9 +6,9 @@ Built with Electron, React, TypeScript, and SQLite (`better-sqlite3`).
 
 ## Status
 
-Phases 0–12 of the build are complete: project scaffold, the SQLite data layer, the IPC/security skeleton, PIN lock with backoff and a forgot-PIN wipe, the tray/window lifecycle, notes, schedule (recurring events, calendar view), the budget tracker (accounts, transactions, category budgets, reports), a background reminder loop with Windows toast notifications, the Today dashboard, Windows Task Scheduler self-registration for the daily auto-launch, a settings screen (launch time, PIN change), and an NSIS Windows installer.
+All 13 build phases are complete: project scaffold, the SQLite data layer, the IPC/security skeleton, PIN lock with backoff and a forgot-PIN wipe, the tray/window lifecycle, notes, schedule (recurring events, calendar view), the budget tracker (accounts, transactions, category budgets, reports), a background reminder loop with Windows toast notifications, the Today dashboard, Windows Task Scheduler self-registration for the daily auto-launch, a settings screen (launch time, PIN change), an NSIS Windows installer, and a final QA pass against every US-1–US-8 acceptance criterion in `REQUIREMENTS.md`. See `claudedocs/workflow_daily-dashboard.md` for the full phase breakdown.
 
-Still to come: a final QA pass against every acceptance criterion. See `claudedocs/workflow_daily-dashboard.md` for the full phase breakdown.
+Backlog (deliberately deferred, not required for MVP — see `ARCHITECTURE.md` §8/§9): PIN recovery flow, export/backup UI, multi-currency, DB-at-rest encryption, auto-update.
 
 ## Getting started
 
