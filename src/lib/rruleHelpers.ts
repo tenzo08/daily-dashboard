@@ -1,10 +1,25 @@
-// Default import, not named — rrule ships a webpack UMD bundle that Node's
-// native ESM loader (used by tsx for the Phase 1 harness) can't statically
-// analyze for named exports. A default import of a CJS module always
-// resolves to module.exports, which works identically under Node's loader
-// and under Rollup/Vite bundling.
-import RRulePackage from 'rrule'
-const { RRule } = RRulePackage
+// rrule resolves differently depending on who's importing it, and no
+// single static import style satisfies both:
+//  - Renderer (Vite/esbuild) resolves rrule's "module" field — a real ESM
+//    build with named exports (RRule, ...) and no default.
+//  - Main process at runtime and the tsx harness (Node's native ESM
+//    loader) resolve the "main" field — a webpack UMD/CJS bundle. Node's
+//    cjs-module-lexer can't statically detect named exports from that
+//    wrapper, so only `.default` (== the whole module.exports) reliably
+//    exists there.
+// A namespace import plus a runtime fallback works in both: try the named
+// export first (Vite), fall back to .default (Node/CJS).
+import * as RRuleNamespace from 'rrule'
+type RRuleModule = typeof RRuleNamespace
+// Accessed through a dynamic key (not a literal `.default`) so Rollup's
+// static ESM-interop analysis doesn't flag this as importing a default
+// that the real ESM build doesn't have — it's a runtime-only fallback for
+// the CJS/UMD build, where it does.
+const defaultKey = 'default' as const
+const rruleModule =
+  (RRuleNamespace as unknown as Record<typeof defaultKey, RRuleModule | undefined>)[defaultKey] ??
+  RRuleNamespace
+const { RRule } = rruleModule
 
 // Shared between the schedule repository (main process, reminder loop +
 // listOccurrences) and the calendar view (renderer) — see ARCHITECTURE.md

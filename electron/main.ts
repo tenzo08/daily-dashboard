@@ -5,6 +5,7 @@ import { openDatabase } from './db'
 import { createSettingsRepository } from './db/repositories/settings'
 import { registerAuthHandlers } from './ipc/auth.ipc'
 import { registerNotesHandlers } from './ipc/notes.ipc'
+import { registerScheduleHandlers } from './ipc/schedule.ipc'
 import { createTray } from './tray/tray'
 
 let mainWindow: BrowserWindow | null = null
@@ -90,6 +91,7 @@ if (!gotSingleInstanceLock) {
     const settings = createSettingsRepository(db)
     registerAuthHandlers(db, settings, dbFilePath)
     registerNotesHandlers(db)
+    registerScheduleHandlers(db)
 
     const window = createWindow()
     tray = createTray(window)

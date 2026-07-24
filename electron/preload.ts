@@ -23,12 +23,22 @@ const api: ApiContract = {
     removeTagFromNote: (noteId, tagId) => ipcRenderer.invoke('notes:removeTagFromNote', noteId, tagId)
   },
 
+  schedule: {
+    listOccurrences: (rangeStartISO, rangeEndISO) =>
+      ipcRenderer.invoke('schedule:listOccurrences', rangeStartISO, rangeEndISO),
+    getItem: (id) => ipcRenderer.invoke('schedule:getItem', id),
+    createItem: (input) => ipcRenderer.invoke('schedule:createItem', input),
+    updateItem: (id, patch) => ipcRenderer.invoke('schedule:updateItem', id, patch),
+    deleteItem: (id) => ipcRenderer.invoke('schedule:deleteItem', id),
+    toggleCompletion: (itemId, occurrenceDate) =>
+      ipcRenderer.invoke('schedule:toggleCompletion', itemId, occurrenceDate)
+  },
+
   // Filled in as each phase lands (see ApiContract in ipc/contract.ts).
   accounts: {},
   transactions: {},
   categories: {},
   budgets: {},
-  schedule: {},
   settings: {},
   dashboard: {}
 }
