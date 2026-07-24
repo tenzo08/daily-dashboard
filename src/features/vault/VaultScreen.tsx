@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
 import { Card } from '@/components/ui/Card'
 import type { CredentialSummary } from '../../../electron/db/types'
@@ -65,11 +65,18 @@ function CredentialRow({
   )
 }
 
-export function VaultScreen(): JSX.Element {
+interface VaultScreenProps {
+  /** Set by the command palette (Ctrl+K) to deep-link straight to a credential. */
+  initialCredentialId?: number
+  onConsumedInitialSelection?: () => void
+}
+
+export function VaultScreen({ initialCredentialId, onConsumedInitialSelection }: VaultScreenProps): JSX.Element {
   const [credentials, setCredentials] = useState<CredentialSummary[]>([])
   const [query, setQuery] = useState('')
   const [editing, setEditing] = useState<CredentialSummary | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const consumedIdRef = useRef<number | undefined>(undefined)
 
   const refresh = useCallback(async () => {
     setCredentials(await api.credentials.list())
@@ -78,6 +85,17 @@ export function VaultScreen(): JSX.Element {
   useEffect(() => {
     refresh()
   }, [refresh])
+
+  useEffect(() => {
+    if (initialCredentialId === undefined || consumedIdRef.current === initialCredentialId) return
+    const credential = credentials.find((c) => c.id === initialCredentialId)
+    if (credential) {
+      setEditing(credential)
+      setShowForm(true)
+      consumedIdRef.current = initialCredentialId
+      onConsumedInitialSelection?.()
+    }
+  }, [initialCredentialId, credentials, onConsumedInitialSelection])
 
   async function handleDelete(): Promise<void> {
     if (!editing) return

@@ -5,7 +5,12 @@ import { FolderTree } from './FolderTree'
 import { NoteList } from './NoteList'
 import { NoteEditor } from './NoteEditor'
 
-export function NotesScreen(): JSX.Element {
+interface NotesScreenProps {
+  /** Set by the command palette (Ctrl+K) to deep-link straight to a note. */
+  initialNoteId?: number
+}
+
+export function NotesScreen({ initialNoteId }: NotesScreenProps): JSX.Element {
   const [folders, setFolders] = useState<NoteFolder[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<number | undefined>(undefined)
@@ -33,6 +38,10 @@ export function NotesScreen(): JSX.Element {
   useEffect(() => {
     refreshNotes()
   }, [refreshNotes])
+
+  useEffect(() => {
+    if (initialNoteId !== undefined) setSelectedNoteId(initialNoteId)
+  }, [initialNoteId])
 
   async function handleCreateNote(): Promise<void> {
     const note = await api.notes.createNote({ title: 'Untitled', folderId: selectedFolderId })

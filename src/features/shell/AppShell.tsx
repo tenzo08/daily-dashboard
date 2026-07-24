@@ -3,6 +3,7 @@ import { api } from '@/lib/api'
 import { Icon } from '@/components/ui/Icon'
 import { SidebarNavItem } from '@/components/ui/SidebarNavItem'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { CommandPalette } from '@/features/shell/CommandPalette'
 import { DashboardScreen } from '@/features/dashboard/DashboardScreen'
 import { NotesScreen } from '@/features/notes/NotesScreen'
 import { ScheduleScreen } from '@/features/schedule/ScheduleScreen'
@@ -61,8 +62,11 @@ const TOOL_ITEMS: { id: Route; label: string }[] = [
   { id: 'settings', label: 'Settings' }
 ]
 
+type PendingSelection = { type: 'note' | 'task' | 'credential'; id: number } | null
+
 export function AppShell({ onLock }: AppShellProps): JSX.Element {
   const [route, setRoute] = useState<Route>('dashboard')
+  const [pendingSelection, setPendingSelection] = useState<PendingSelection>(null)
 
   async function handleLock(): Promise<void> {
     await api.auth.lock()
@@ -127,15 +131,34 @@ export function AppShell({ onLock }: AppShellProps): JSX.Element {
         {/* Dashboard needs cross-navigation (deep-link into a section's
             full view, FR-18); the others are self-contained. */}
         {route === 'dashboard' && <DashboardScreen onNavigate={setRoute} />}
-        {route === 'vault' && <VaultScreen />}
-        {route === 'notes' && <NotesScreen />}
-        {route === 'tasks' && <TasksScreen />}
+        {route === 'vault' && (
+          <VaultScreen
+            initialCredentialId={pendingSelection?.type === 'credential' ? pendingSelection.id : undefined}
+            onConsumedInitialSelection={() => setPendingSelection(null)}
+          />
+        )}
+        {route === 'notes' && (
+          <NotesScreen initialNoteId={pendingSelection?.type === 'note' ? pendingSelection.id : undefined} />
+        )}
+        {route === 'tasks' && (
+          <TasksScreen
+            initialTaskId={pendingSelection?.type === 'task' ? pendingSelection.id : undefined}
+            onConsumedInitialSelection={() => setPendingSelection(null)}
+          />
+        )}
         {route === 'schedule' && <ScheduleScreen />}
         {route === 'budget' && <BudgetScreen />}
         {route === 'generate' && <GeneratePasswordScreen />}
         {route === 'activity' && <ActivityLogScreen />}
         {route === 'settings' && <SettingsScreen />}
       </main>
+
+      <CommandPalette
+        onNavigate={setRoute}
+        onSelectNote={(id) => setPendingSelection({ type: 'note', id })}
+        onSelectTask={(id) => setPendingSelection({ type: 'task', id })}
+        onSelectCredential={(id) => setPendingSelection({ type: 'credential', id })}
+      />
     </div>
   )
 }

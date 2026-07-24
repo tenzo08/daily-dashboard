@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
 import { StatusPill, type StatusPillTone } from '@/components/ui/StatusPill'
 import type { Task, TaskPriority, TaskStatus } from '../../../electron/db/types'
@@ -45,10 +45,17 @@ function TaskCard({
   )
 }
 
-export function TasksScreen(): JSX.Element {
+interface TasksScreenProps {
+  /** Set by the command palette (Ctrl+K) to deep-link straight to a task. */
+  initialTaskId?: number
+  onConsumedInitialSelection?: () => void
+}
+
+export function TasksScreen({ initialTaskId, onConsumedInitialSelection }: TasksScreenProps): JSX.Element {
   const [tasks, setTasks] = useState<Task[]>([])
   const [editing, setEditing] = useState<Task | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const consumedIdRef = useRef<number | undefined>(undefined)
 
   const refresh = useCallback(async () => {
     setTasks(await api.tasks.list())
@@ -57,6 +64,17 @@ export function TasksScreen(): JSX.Element {
   useEffect(() => {
     refresh()
   }, [refresh])
+
+  useEffect(() => {
+    if (initialTaskId === undefined || consumedIdRef.current === initialTaskId) return
+    const task = tasks.find((t) => t.id === initialTaskId)
+    if (task) {
+      setEditing(task)
+      setShowForm(true)
+      consumedIdRef.current = initialTaskId
+      onConsumedInitialSelection?.()
+    }
+  }, [initialTaskId, tasks, onConsumedInitialSelection])
 
   async function handleAdvance(task: Task): Promise<void> {
     await api.tasks.setStatus(task.id, NEXT_STATUS[task.status])
