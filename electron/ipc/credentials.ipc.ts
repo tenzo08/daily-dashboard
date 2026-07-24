@@ -6,12 +6,6 @@ import { decryptSecret, encryptSecret } from '../lock/vaultCrypto'
 import { vaultSession } from '../lock/vaultSession'
 import { registerHandler } from './registerHandler'
 
-function requireVaultKey(): Buffer {
-  const key = vaultSession.get()
-  if (!key) throw new Error('Vault is locked')
-  return key
-}
-
 function packSecret(secret: CredentialSecret): string {
   return JSON.stringify(secret)
 }
@@ -27,7 +21,7 @@ export function registerCredentialsHandlers(db: DB): void {
   registerHandler('credentials:list', () => credentials.list())
 
   registerHandler('credentials:create', (input: NewCredentialInput) => {
-    const key = requireVaultKey()
+    const key = vaultSession.require()
     const encrypted = encryptSecret(packSecret({ password: input.password, notes: input.notes ?? null }), key)
     const summary = credentials.create({
       title: input.title,
@@ -41,7 +35,7 @@ export function registerCredentialsHandlers(db: DB): void {
   })
 
   registerHandler('credentials:update', (id: number, patch: Partial<NewCredentialInput>) => {
-    const key = requireVaultKey()
+    const key = vaultSession.require()
     const row = credentials.get(id)
     if (!row) throw new Error(`Credential ${id} not found`)
 
@@ -71,7 +65,7 @@ export function registerCredentialsHandlers(db: DB): void {
   })
 
   registerHandler('credentials:reveal', (id: number): CredentialSecret => {
-    const key = requireVaultKey()
+    const key = vaultSession.require()
     const row = credentials.get(id)
     if (!row) throw new Error(`Credential ${id} not found`)
     return unpackSecret(decryptSecret(row, key))

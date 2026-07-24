@@ -19,6 +19,10 @@ export function SettingsScreen(): JSX.Element {
   const [pinError, setPinError] = useState<string | null>(null)
   const [pinChangeState, setPinChangeState] = useState<SaveState>('idle')
 
+  const [backupMessage, setBackupMessage] = useState<string | null>(null)
+  const [backupError, setBackupError] = useState<string | null>(null)
+  const [backupBusy, setBackupBusy] = useState(false)
+
   useEffect(() => {
     api.settings.getLaunchTime().then(setLaunchTime)
     api.settings.getIdleLockMinutes().then((minutes) => setIdleLockMinutes(String(minutes)))
@@ -82,6 +86,32 @@ export function SettingsScreen(): JSX.Element {
     setPinChangeState('saved')
   }
 
+  async function handleExport(): Promise<void> {
+    setBackupBusy(true)
+    setBackupMessage(null)
+    setBackupError(null)
+    try {
+      const { path } = await api.backup.export()
+      if (path) setBackupMessage(`Exported to ${path}`)
+    } catch (error) {
+      setBackupError(error instanceof Error ? error.message : String(error))
+    }
+    setBackupBusy(false)
+  }
+
+  async function handleImport(): Promise<void> {
+    setBackupBusy(true)
+    setBackupMessage(null)
+    setBackupError(null)
+    try {
+      const { imported, path } = await api.backup.import()
+      if (imported) setBackupMessage(`Imported from ${path} — restart the app to see everything.`)
+    } catch (error) {
+      setBackupError(error instanceof Error ? error.message : String(error))
+    }
+    setBackupBusy(false)
+  }
+
   return (
     <div className="max-w-md flex-1 space-y-8 overflow-auto p-6">
       <h1 className="text-lg font-semibold text-graphite">Settings</h1>
@@ -136,6 +166,38 @@ export function SettingsScreen(): JSX.Element {
           </span>
         </div>
         <p className="mt-1 text-xs text-graphite-dim">Older entries are pruned automatically. 0 keeps everything.</p>
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-sm font-medium text-graphite-dim">Export / Backup</h2>
+        <p className="mb-2 text-xs text-graphite-dim">
+          Exports everything — notes, tasks, schedule, budget, and vault credentials — to a JSON file you choose.{' '}
+          <strong className="font-medium text-danger">
+            Vault passwords are written in plain text so the file can actually restore your vault
+          </strong>{' '}
+          — store it somewhere as safe as the passwords themselves. Import only works into a completely empty vault
+          (e.g. right after &quot;Forgot PIN&quot;).
+        </p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={handleExport}
+            disabled={backupBusy}
+            className="rounded-control bg-brass px-3 py-1.5 text-sm font-semibold text-graphite hover:bg-brass-bright disabled:opacity-40"
+          >
+            Export data…
+          </button>
+          <button
+            type="button"
+            onClick={handleImport}
+            disabled={backupBusy}
+            className="rounded-control border border-line px-3 py-1.5 text-sm text-graphite-dim hover:bg-line/40 disabled:opacity-40"
+          >
+            Import data…
+          </button>
+        </div>
+        {backupMessage && <p className="mt-2 text-xs text-success">{backupMessage}</p>}
+        {backupError && <p className="mt-2 text-xs text-danger">{backupError}</p>}
       </section>
 
       <section>

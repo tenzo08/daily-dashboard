@@ -97,6 +97,11 @@ const api: ApiContract = {
     setIdleLockMinutes: (minutes) => ipcRenderer.invoke('settings:setIdleLockMinutes', minutes),
     getActivityRetentionDays: () => ipcRenderer.invoke('settings:getActivityRetentionDays'),
     setActivityRetentionDays: (days) => ipcRenderer.invoke('settings:setActivityRetentionDays', days)
+  },
+
+  backup: {
+    export: () => ipcRenderer.invoke('backup:export'),
+    import: () => ipcRenderer.invoke('backup:import')
   }
 }
 

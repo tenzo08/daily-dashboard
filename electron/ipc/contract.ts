@@ -164,4 +164,11 @@ export interface ApiContract {
     getActivityRetentionDays: () => Promise<number>
     setActivityRetentionDays: (days: number) => Promise<void>
   }
+
+  backup: {
+    /** Opens a native save dialog; { path: null } if the user cancelled. */
+    export: () => Promise<{ path: string | null }>
+    /** Opens a native open dialog; only succeeds into a completely empty vault. */
+    import: () => Promise<{ imported: boolean; path: string | null }>
+  }
 }

@@ -8,6 +8,11 @@ export const vaultSession = {
   get(): Buffer | null {
     return currentKey
   },
+  /** Throws if the vault is locked — for handlers that can't do anything without the key. */
+  require(): Buffer {
+    if (!currentKey) throw new Error('Vault is locked')
+    return currentKey
+  },
   set(key: Buffer): void {
     currentKey = key
   },

@@ -15,6 +15,7 @@ import { registerBudgetsHandlers } from './ipc/budgets.ipc'
 import { registerCredentialsHandlers } from './ipc/credentials.ipc'
 import { registerTasksHandlers } from './ipc/tasks.ipc'
 import { registerActivityHandlers } from './ipc/activity.ipc'
+import { registerBackupHandlers } from './ipc/backup.ipc'
 import { registerSystemHandlers } from './ipc/system.ipc'
 import { registerDashboardHandlers } from './ipc/dashboard.ipc'
 import { DEFAULT_ACTIVITY_RETENTION_DAYS, registerSettingsHandlers } from './ipc/settings.ipc'
@@ -118,6 +119,7 @@ if (!gotSingleInstanceLock) {
     registerCredentialsHandlers(db)
     registerTasksHandlers(db)
     registerActivityHandlers(db)
+    registerBackupHandlers(db)
     registerSystemHandlers()
     registerDashboardHandlers(db)
     registerSettingsHandlers(settings, activity)
