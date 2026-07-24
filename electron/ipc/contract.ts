@@ -4,7 +4,7 @@
 // this) can import it across the tsconfig.node/tsconfig.web boundary.
 //
 // Each domain starts as an empty placeholder and is filled in with real
-// methods as its phase lands (P11 settings) — see workflow_daily-dashboard.md.
+// methods as its phase lands — see workflow_daily-dashboard.md.
 
 import type {
   Account,
@@ -106,5 +106,9 @@ export interface ApiContract {
     getToday: () => Promise<DashboardSnapshot>
   }
 
-  settings: Record<string, never>
+  settings: {
+    getLaunchTime: () => Promise<string>
+    /** Also re-registers the Task Scheduler entry (ARCHITECTURE.md §5.3). */
+    setLaunchTime: (time: string) => Promise<void>
+  }
 }

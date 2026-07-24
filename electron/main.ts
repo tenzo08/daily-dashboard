@@ -11,6 +11,7 @@ import { registerCategoriesHandlers } from './ipc/categories.ipc'
 import { registerTransactionsHandlers } from './ipc/transactions.ipc'
 import { registerBudgetsHandlers } from './ipc/budgets.ipc'
 import { registerDashboardHandlers } from './ipc/dashboard.ipc'
+import { registerSettingsHandlers } from './ipc/settings.ipc'
 import { createTray } from './tray/tray'
 import { startReminderLoop } from './scheduler/reminderLoop'
 
@@ -103,6 +104,7 @@ if (!gotSingleInstanceLock) {
     registerTransactionsHandlers(db)
     registerBudgetsHandlers(db)
     registerDashboardHandlers(db)
+    registerSettingsHandlers(settings)
 
     const window = createWindow()
     tray = createTray(window)

@@ -64,8 +64,10 @@ const api: ApiContract = {
     getToday: () => ipcRenderer.invoke('dashboard:getToday')
   },
 
-  // Filled in as each phase lands (see ApiContract in ipc/contract.ts).
-  settings: {}
+  settings: {
+    getLaunchTime: () => ipcRenderer.invoke('settings:getLaunchTime'),
+    setLaunchTime: (time) => ipcRenderer.invoke('settings:setLaunchTime', time)
+  }
 }
 
 contextBridge.exposeInMainWorld('api', api)
