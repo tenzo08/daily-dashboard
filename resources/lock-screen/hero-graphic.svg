@@ -1,0 +1,36 @@
+<svg width="320" height="320" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="0" y2="320" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#c7cdff"/>
+      <stop offset="1" stop-color="#5d5fff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="55%">
+      <stop offset="0" stop-color="#4b4dff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#4b4dff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="160" cy="150" r="150" fill="url(#glow)"/>
+
+  <!-- concentric fingerprint arcs at varying openings, echoing app-icon -->
+  <g fill="none" stroke="#2a2b36" stroke-width="2.5" stroke-linecap="round">
+    <path d="M160 60a90 90 0 0 1 90 90" />
+    <path d="M160 44a106 106 0 0 1 106 106" />
+    <path d="M160 28a122 122 0 0 1 122 122" />
+    <path d="M70 150a90 90 0 0 0 60 85" />
+    <path d="M54 150a106 106 0 0 0 82 100" />
+    <path d="M38 150a122 122 0 0 0 106 118" />
+  </g>
+  <g fill="none" stroke="#34353f" stroke-width="2.5" stroke-linecap="round" opacity="0.8">
+    <circle cx="160" cy="150" r="74"/>
+    <path d="M226 150a66 66 0 0 1 -66 66" stroke-dasharray="1 10"/>
+  </g>
+
+  <!-- centered key -->
+  <g>
+    <circle cx="160" cy="120" r="32" fill="none" stroke="url(#accent)" stroke-width="11"/>
+    <rect x="153" y="146" width="14" height="78" rx="5" fill="url(#accent)"/>
+    <rect x="167" y="182" width="18" height="11" rx="3" fill="url(#accent)"/>
+    <rect x="167" y="202" width="26" height="11" rx="3" fill="url(#accent)"/>
+  </g>
+</svg>

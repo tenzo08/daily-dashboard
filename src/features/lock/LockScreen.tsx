@@ -1,5 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { api } from '@/lib/api'
+import { Icon } from '@/components/ui/Icon'
+import { PasswordField } from '@/components/ui/PasswordField'
+import heroGraphic from '../../../resources/lock-screen/hero-graphic.svg?raw'
 
 interface LockScreenProps {
   onUnlock: () => void
@@ -51,23 +54,28 @@ export function LockScreen({ onUnlock }: LockScreenProps): JSX.Element {
   }
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-neutral-50 text-neutral-900">
-      <form onSubmit={handleSubmit} className="w-64 space-y-4 text-center">
-        <h1 className="text-xl font-semibold">Enter PIN</h1>
+    <div className="flex h-screen w-screen flex-col items-center justify-center bg-void text-ink-text">
+      <form onSubmit={handleSubmit} className="w-72 text-center">
+        <Icon svg={heroGraphic} className="mx-auto mb-5 h-32 w-32" />
 
-        <input
-          type="password"
+        <h1 className="mb-1 text-lg font-bold tracking-tight text-ink-text">Daily Dashboard</h1>
+        <p className="mb-1 text-sm text-ink-text-dim">Coded for privacy.</p>
+        <p className="mb-6 text-xs leading-relaxed text-ink-text-dim">
+          Your passwords and personal notes stay encrypted, private, and fully under your control — always.
+        </p>
+
+        <PasswordField
+          label="Master password"
           inputMode="numeric"
           autoFocus
           disabled={isLockedOut}
           value={pin}
           onChange={(event) => setPin(event.target.value)}
-          className="w-full rounded border border-neutral-300 px-3 py-2 text-center tracking-widest disabled:opacity-40"
         />
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-2 text-xs text-danger-bright">{error}</p>}
         {isLockedOut && (
-          <p className="text-sm text-red-600">
+          <p className="mt-2 text-xs text-danger-bright">
             Too many attempts. Try again in {Math.ceil((lockedUntil! - Date.now()) / 1000)}s.
           </p>
         )}
@@ -75,33 +83,42 @@ export function LockScreen({ onUnlock }: LockScreenProps): JSX.Element {
         <button
           type="submit"
           disabled={isLockedOut || pin.length === 0}
-          className="w-full rounded bg-neutral-900 px-3 py-2 text-white disabled:opacity-40"
+          className="mt-4 w-full rounded-control bg-brass py-2.5 text-sm font-semibold text-void hover:bg-brass-bright disabled:opacity-40"
         >
-          Unlock
+          Unlock Vault →
         </button>
+
+        <p className="mt-5 font-mono text-[10px] tracking-wider text-ink-text-dim">
+          AES-256 · Argon2id · Local-first · v0.1.0
+        </p>
 
         {!resetConfirm ? (
           <button
             type="button"
             onClick={() => setResetConfirm(true)}
-            className="text-xs text-neutral-400 underline"
+            className="mt-4 font-mono text-[10px] uppercase tracking-wider text-ink-text-dim underline hover:text-ink-text"
           >
             Forgot PIN?
           </button>
         ) : (
-          <div className="space-y-2 text-xs text-neutral-500">
-            <p>This deletes all local data (notes, schedule, budget) and starts over. This cannot be undone.</p>
+          <div className="mt-4 space-y-2 text-xs text-ink-text-dim">
+            <p>This deletes all local data (notes, schedule, budget, vault) and starts over. This cannot be undone.</p>
             <div className="flex justify-center gap-3">
               <button type="button" onClick={() => setResetConfirm(false)} className="underline">
                 Cancel
               </button>
-              <button type="button" onClick={handleReset} className="text-red-600 underline">
+              <button type="button" onClick={handleReset} className="text-danger-bright underline">
                 Reset and start over
               </button>
             </div>
           </div>
         )}
       </form>
+
+      <div className="fixed bottom-0 left-0 right-0 border-t border-ink-line px-4 py-2 text-center font-mono text-[10px] uppercase tracking-wider text-ink-text-dim">
+        [ SYSTEM_STATUS: {isLockedOut ? 'LOCKED_OUT' : 'LOCKED'} ] root@daily-dashboard:/vault — NO CLOUD. NO
+        BACKDOORS. NO COMPROMISE. HAND-CODED FOR PRIVACY.
+      </div>
     </div>
   )
 }

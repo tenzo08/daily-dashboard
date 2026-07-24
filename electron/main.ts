@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell, type Tray } from 'electron'
 import { join } from 'path'
 import { is } from './lib/env'
 import { openDatabase } from './db'
+import { createCredentialsRepository } from './db/repositories/credentials'
 import { createSettingsRepository } from './db/repositories/settings'
 import { registerAuthHandlers } from './ipc/auth.ipc'
 import { registerNotesHandlers } from './ipc/notes.ipc'
@@ -10,6 +11,10 @@ import { registerAccountsHandlers } from './ipc/accounts.ipc'
 import { registerCategoriesHandlers } from './ipc/categories.ipc'
 import { registerTransactionsHandlers } from './ipc/transactions.ipc'
 import { registerBudgetsHandlers } from './ipc/budgets.ipc'
+import { registerCredentialsHandlers } from './ipc/credentials.ipc'
+import { registerTasksHandlers } from './ipc/tasks.ipc'
+import { registerActivityHandlers } from './ipc/activity.ipc'
+import { registerSystemHandlers } from './ipc/system.ipc'
 import { registerDashboardHandlers } from './ipc/dashboard.ipc'
 import { registerSettingsHandlers } from './ipc/settings.ipc'
 import { createTray } from './tray/tray'
@@ -30,6 +35,10 @@ function createWindow(): BrowserWindow {
     height: 750,
     show: false,
     autoHideMenuBar: true,
+    // Packaged builds get their icon baked into the .exe via
+    // electron-builder's win.icon; dev mode needs it set explicitly or the
+    // window shows Electron's default icon.
+    ...(is.dev ? { icon: join(__dirname, '../../resources/app-icon/icon.ico') } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/preload.cjs'),
       contextIsolation: true,
@@ -96,13 +105,18 @@ if (!gotSingleInstanceLock) {
     const dbFilePath = join(app.getPath('userData'), 'data.db')
     const db = openDatabase(dbFilePath)
     const settings = createSettingsRepository(db)
-    registerAuthHandlers(db, settings, dbFilePath)
+    const credentials = createCredentialsRepository(db)
+    registerAuthHandlers(db, settings, dbFilePath, credentials)
     registerNotesHandlers(db)
     registerScheduleHandlers(db)
     registerAccountsHandlers(db)
     registerCategoriesHandlers(db)
     registerTransactionsHandlers(db)
     registerBudgetsHandlers(db)
+    registerCredentialsHandlers(db)
+    registerTasksHandlers(db)
+    registerActivityHandlers(db)
+    registerSystemHandlers()
     registerDashboardHandlers(db)
     registerSettingsHandlers(settings)
 

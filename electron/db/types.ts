@@ -169,3 +169,95 @@ export interface ScheduleOccurrence {
   completed: boolean
   skipped: boolean
 }
+
+// ---- Vault (credentials) ----
+// Repositories only ever see the encrypted blob — encryption/decryption
+// happens in electron/ipc/credentials.ipc.ts, the one place that also has
+// the in-memory vault key (electron/lock/vaultSession.ts).
+
+export interface EncryptedSecret {
+  secretCipher: string
+  secretIv: string
+  secretTag: string
+}
+
+export interface CredentialRow extends EncryptedSecret {
+  id: number
+  title: string
+  username: string | null
+  url: string | null
+  folder: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CredentialSummary {
+  id: number
+  title: string
+  username: string | null
+  url: string | null
+  folder: string | null
+  updatedAt: string
+}
+
+export interface NewCredentialRow {
+  title: string
+  username?: string | null
+  url?: string | null
+  folder?: string | null
+  secretCipher: string
+  secretIv: string
+  secretTag: string
+}
+
+export interface CredentialSecret {
+  password: string
+  notes: string | null
+}
+
+/** Renderer-facing input — plaintext password, encrypted by credentials.ipc.ts before it touches disk. */
+export interface NewCredentialInput {
+  title: string
+  username?: string
+  url?: string
+  folder?: string
+  password: string
+  notes?: string
+}
+
+// ---- Tasks ----
+
+export type TaskStatus = 'todo' | 'in_progress' | 'done'
+export type TaskPriority = 'low' | 'medium' | 'high'
+
+export interface Task {
+  id: number
+  title: string
+  description: string | null
+  status: TaskStatus
+  priority: TaskPriority
+  dueDate: string | null
+  completedAt: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface NewTask {
+  title: string
+  description?: string
+  priority?: TaskPriority
+  dueDate?: string
+}
+
+export interface TaskFilter {
+  status?: TaskStatus
+}
+
+// ---- Activity log ----
+
+export interface ActivityEntry {
+  id: number
+  eventType: string
+  message: string
+  createdAt: string
+}

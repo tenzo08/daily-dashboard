@@ -9,13 +9,18 @@
 import type {
   Account,
   AccountBalance,
+  ActivityEntry,
   BudgetWithSpend,
   Category,
   CategorySpend,
+  CredentialSecret,
+  CredentialSummary,
   NewAccount,
   NewCategory,
+  NewCredentialInput,
   NewNote,
   NewScheduleItem,
+  NewTask,
   NewTransaction,
   Note,
   NoteFilter,
@@ -24,6 +29,9 @@ import type {
   ScheduleItem,
   ScheduleOccurrence,
   Tag,
+  Task,
+  TaskFilter,
+  TaskStatus,
   Transaction,
   TransactionFilter
 } from '../db/types'
@@ -31,9 +39,17 @@ import type {
 export interface DashboardSnapshot {
   note: Note
   schedule: ScheduleOccurrence[]
+  tasks: Task[]
+  activity: ActivityEntry[]
+  counts: {
+    credentials: number
+    notes: number
+    openTasks: number
+  }
   budgetSnapshot: {
     accountBalances: AccountBalance[]
     monthSpendByCategory: CategorySpend[]
+    monthIncome: number
   }
 }
 
@@ -49,6 +65,8 @@ export interface ApiContract {
     verifyPin: (pin: string) => Promise<VerifyPinResult>
     /** Wipes local data and relaunches the app (REQUIREMENTS.md OQ-1). */
     resetData: () => Promise<void>
+    /** Drops the in-memory vault key; renderer separately swaps back to LockScreen. */
+    lock: () => Promise<void>
   }
 
   notes: {
@@ -100,6 +118,31 @@ export interface ApiContract {
   budgets: {
     list: () => Promise<BudgetWithSpend[]>
     set: (categoryId: number, limitAmount: number, thresholdPct?: number) => Promise<void>
+  }
+
+  credentials: {
+    list: () => Promise<CredentialSummary[]>
+    create: (input: NewCredentialInput) => Promise<CredentialSummary>
+    update: (id: number, patch: Partial<NewCredentialInput>) => Promise<CredentialSummary>
+    delete: (id: number) => Promise<void>
+    /** Decrypts on demand — list() never returns plaintext (see credentials.ipc.ts). */
+    reveal: (id: number) => Promise<CredentialSecret>
+  }
+
+  tasks: {
+    list: (filter?: TaskFilter) => Promise<Task[]>
+    create: (input: NewTask) => Promise<Task>
+    update: (id: number, patch: Partial<NewTask>) => Promise<Task>
+    setStatus: (id: number, status: TaskStatus) => Promise<Task>
+    delete: (id: number) => Promise<void>
+  }
+
+  activity: {
+    list: (limit?: number) => Promise<ActivityEntry[]>
+  }
+
+  system: {
+    copyToClipboard: (text: string) => Promise<void>
   }
 
   dashboard: {

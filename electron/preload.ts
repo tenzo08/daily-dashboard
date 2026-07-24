@@ -6,7 +6,8 @@ const api: ApiContract = {
     isPinSet: () => ipcRenderer.invoke('auth:isPinSet'),
     setPin: (pin) => ipcRenderer.invoke('auth:setPin', pin),
     verifyPin: (pin) => ipcRenderer.invoke('auth:verifyPin', pin),
-    resetData: () => ipcRenderer.invoke('auth:resetData')
+    resetData: () => ipcRenderer.invoke('auth:resetData'),
+    lock: () => ipcRenderer.invoke('auth:lock')
   },
 
   notes: {
@@ -58,6 +59,30 @@ const api: ApiContract = {
     list: () => ipcRenderer.invoke('budgets:list'),
     set: (categoryId, limitAmount, thresholdPct) =>
       ipcRenderer.invoke('budgets:set', categoryId, limitAmount, thresholdPct)
+  },
+
+  credentials: {
+    list: () => ipcRenderer.invoke('credentials:list'),
+    create: (input) => ipcRenderer.invoke('credentials:create', input),
+    update: (id, patch) => ipcRenderer.invoke('credentials:update', id, patch),
+    delete: (id) => ipcRenderer.invoke('credentials:delete', id),
+    reveal: (id) => ipcRenderer.invoke('credentials:reveal', id)
+  },
+
+  tasks: {
+    list: (filter) => ipcRenderer.invoke('tasks:list', filter),
+    create: (input) => ipcRenderer.invoke('tasks:create', input),
+    update: (id, patch) => ipcRenderer.invoke('tasks:update', id, patch),
+    setStatus: (id, status) => ipcRenderer.invoke('tasks:setStatus', id, status),
+    delete: (id) => ipcRenderer.invoke('tasks:delete', id)
+  },
+
+  activity: {
+    list: (limit) => ipcRenderer.invoke('activity:list', limit)
+  },
+
+  system: {
+    copyToClipboard: (text) => ipcRenderer.invoke('system:copyToClipboard', text)
   },
 
   dashboard: {

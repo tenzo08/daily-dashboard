@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3'
 import { migration_0001_init } from './migrations/0001_init'
+import { migration_0002_vault_tasks_activity } from './migrations/0002_vault_tasks_activity'
 
 export type DB = Database.Database
 
@@ -10,7 +11,10 @@ interface Migration {
 
 // Ordered oldest-first. Add new migrations here as the schema evolves —
 // never edit an already-applied migration's SQL.
-const migrations: Migration[] = [{ name: '0001_init', sql: migration_0001_init }]
+const migrations: Migration[] = [
+  { name: '0001_init', sql: migration_0001_init },
+  { name: '0002_vault_tasks_activity', sql: migration_0002_vault_tasks_activity }
+]
 
 /**
  * Opens (creating if needed) the SQLite file at `filePath` and applies any

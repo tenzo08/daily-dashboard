@@ -11,7 +11,7 @@ extraResources:
     to: tray-icon.png
 win:
   target: nsis
-  icon: resources/icon.ico
+  icon: resources/app-icon/icon.ico
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true

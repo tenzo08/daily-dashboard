@@ -1,1 +1,104 @@
 @import 'tailwindcss';
+
+/* Self-hosted (no network fetch, ever — matches the lock screen's own
+   "NO CLOUD" claim). Only the weights actually used. */
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+/*
+ * Bambi design tokens — two modes, one system.
+ *
+ * Mode 1 "vault" (dark): the Lock Screen. Near-black surfaces, a single
+ * brass accent, monospace system-status readouts.
+ * Mode 2 "dashboard" (light): everything past the lock. Warm off-white
+ * surfaces, hairline borders, small consistent radii, no gradients.
+ *
+ * One monospace face (JetBrains Mono) runs the entire UI, not just system
+ * text — headings, nav, body copy, data. The signature thread tying both
+ * modes together: bracketed system-status readouts (`[LABEL: VALUE]`),
+ * see SystemReadout component.
+ */
+@theme {
+  /* ---- Dark surface family (vault / lock screen) ---- */
+  --color-void: #0a0a0f;
+  --color-ink: #16161d;
+  --color-ink-raised: #1d1d26;
+  --color-ink-line: rgba(255, 255, 255, 0.08);
+  --color-ink-text: #edece8;
+  --color-ink-text-dim: #8e8c97;
+
+  /* ---- Light surface family (dashboard) ---- */
+  --color-paper: #f6f5f1;
+  --color-surface: #ffffff;
+  --color-line: #e4e1d8;
+  --color-graphite: #1c1b18;
+  --color-graphite-dim: #6b6860;
+
+  /* ---- Brass accent — the one color shared by both modes ---- */
+  --color-brass: #b8862e;
+  --color-brass-bright: #d9a94e; /* legible variant for dark backgrounds */
+  --color-brass-tint: #f2e6ce;
+
+  /* ---- Status semantics (pills, readouts). Paired -bright variants
+     exist for use on dark (void/ink) surfaces where the base tone
+     doesn't meet contrast. ---- */
+  --color-success: #4c7a5d;
+  --color-success-bright: #7fc79e;
+  --color-success-tint: #e1ebe3;
+
+  --color-warning: #a8781e;
+  --color-warning-bright: #e0ae55;
+  --color-warning-tint: #f3e7d0;
+
+  --color-danger: #b0463c;
+  --color-danger-bright: #e68177;
+  --color-danger-tint: #f6e1de;
+
+  --color-muted: #6b6860;
+  --color-muted-bright: #a9a7ad;
+  --color-muted-tint: #edebe4;
+
+  /* ---- Type ----
+     One face for the whole UI: JetBrains Mono, self-hosted via
+     @fontsource (bundled at build time, no runtime font fetch). --font-sans
+     points at the same stack so nothing accidentally falls back to a
+     system sans if a component still reaches for font-sans. */
+  --font-sans: 'JetBrains Mono', ui-monospace, Consolas, 'SFMono-Regular', monospace;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, 'SFMono-Regular', monospace;
+
+  /* ---- Radius: small and consistent, per brief. Named by role, not
+     size, so screens don't have to guess which step of a generic
+     scale to reach for. ---- */
+  --radius-control: 8px; /* inputs, buttons */
+  --radius-card: 12px; /* cards, panels */
+  --radius-panel: 16px; /* lock screen card */
+  --radius-pill: 999px; /* status pills */
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+/* Dashboard-side light/dark toggle (ThemeToggle component, src/lib/theme.ts).
+   Only the dashboard's own tokens are overridden here — void/ink/ink-* stay
+   untouched, so the lock screen's fixed dark "vault" mode never changes
+   regardless of this toggle. Brass stays the same in both, it already
+   reads fine on light and dark surfaces. */
+:root[data-theme='dark'] {
+  --color-paper: #121218;
+  --color-surface: #1a1a22;
+  --color-line: rgba(255, 255, 255, 0.1);
+  --color-graphite: #edece8;
+  --color-graphite-dim: #9997a3;
+
+  --color-success: var(--color-success-bright);
+  --color-success-tint: rgba(127, 199, 158, 0.14);
+  --color-warning: var(--color-warning-bright);
+  --color-warning-tint: rgba(224, 174, 85, 0.14);
+  --color-danger: var(--color-danger-bright);
+  --color-danger-tint: rgba(230, 129, 119, 0.14);
+  --color-muted: var(--color-muted-bright);
+  --color-muted-tint: rgba(169, 167, 173, 0.14);
+}

@@ -143,13 +143,16 @@ export function createScheduleRepository(db: DB) {
       return occurrences.sort((a, b) => a.occurrenceAt.localeCompare(b.occurrenceAt))
     },
 
-    toggleCompletion(itemId: number, occurrenceDate: string): void {
+    /** Returns the occurrence's completed state *after* the toggle. */
+    toggleCompletion(itemId: number, occurrenceDate: string): boolean {
       const existing = completionStmt.get({ itemId, date: occurrenceDate }) as CompletionRow | undefined
+      const nowCompleted = !existing?.completed_at
       upsertCompletionStmt.run({
         itemId,
         date: occurrenceDate,
-        completedAt: existing?.completed_at ? null : new Date().toISOString()
+        completedAt: nowCompleted ? new Date().toISOString() : null
       })
+      return nowCompleted
     },
 
     isReminderFired(itemId: number, occurrenceAt: string): boolean {

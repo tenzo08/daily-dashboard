@@ -35,5 +35,5 @@ export default function App(): JSX.Element {
     return <LockScreen onUnlock={() => setAuthState('unlocked')} />
   }
 
-  return <AppShell />
+  return <AppShell onLock={() => setAuthState('locked')} />
 }
