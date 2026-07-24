@@ -9,6 +9,8 @@ interface TaskRow {
   priority: TaskPriority
   due_date: string | null
   completed_at: string | null
+  linked_note_id: number | null
+  linked_schedule_item_id: number | null
   created_at: string
   updated_at: string
 }
@@ -22,27 +24,25 @@ function mapTask(row: TaskRow): Task {
     priority: row.priority,
     dueDate: row.due_date,
     completedAt: row.completed_at,
+    linkedNoteId: row.linked_note_id,
+    linkedScheduleItemId: row.linked_schedule_item_id,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   }
 }
 
+const ORDER_BY = `ORDER BY (due_date IS NULL), due_date, priority = 'high' DESC, created_at`
+
 export function createTasksRepository(db: DB) {
   const insertStmt = db.prepare(`
-    INSERT INTO tasks (title, description, priority, due_date)
-    VALUES (@title, @description, @priority, @dueDate)
+    INSERT INTO tasks (title, description, priority, due_date, linked_note_id, linked_schedule_item_id)
+    VALUES (@title, @description, @priority, @dueDate, @linkedNoteId, @linkedScheduleItemId)
   `)
   const getStmt = db.prepare(`SELECT * FROM tasks WHERE id = ?`)
-  const listAllStmt = db.prepare(`
-    SELECT * FROM tasks ORDER BY (due_date IS NULL), due_date, priority = 'high' DESC, created_at
-  `)
-  const listByStatusStmt = db.prepare(`
-    SELECT * FROM tasks WHERE status = @status
-    ORDER BY (due_date IS NULL), due_date, priority = 'high' DESC, created_at
-  `)
   const updateStmt = db.prepare(`
     UPDATE tasks
     SET title = @title, description = @description, priority = @priority, due_date = @dueDate,
+        linked_note_id = @linkedNoteId, linked_schedule_item_id = @linkedScheduleItemId,
         updated_at = datetime('now')
     WHERE id = @id
   `)
@@ -56,9 +56,24 @@ export function createTasksRepository(db: DB) {
 
   return {
     list(filter: TaskFilter = {}): Task[] {
-      const rows = (
-        filter.status ? listByStatusStmt.all({ status: filter.status }) : listAllStmt.all()
-      ) as TaskRow[]
+      const conditions: string[] = []
+      const params: Record<string, unknown> = {}
+
+      if (filter.status) {
+        conditions.push('status = @status')
+        params['status'] = filter.status
+      }
+      if (filter.linkedNoteId !== undefined) {
+        conditions.push('linked_note_id = @linkedNoteId')
+        params['linkedNoteId'] = filter.linkedNoteId
+      }
+      if (filter.linkedScheduleItemId !== undefined) {
+        conditions.push('linked_schedule_item_id = @linkedScheduleItemId')
+        params['linkedScheduleItemId'] = filter.linkedScheduleItemId
+      }
+
+      const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
+      const rows = db.prepare(`SELECT * FROM tasks ${where} ${ORDER_BY}`).all(params) as TaskRow[]
       return rows.map(mapTask)
     },
 
@@ -72,7 +87,9 @@ export function createTasksRepository(db: DB) {
         title: input.title,
         description: input.description ?? null,
         priority: input.priority ?? 'medium',
-        dueDate: input.dueDate ?? null
+        dueDate: input.dueDate ?? null,
+        linkedNoteId: input.linkedNoteId ?? null,
+        linkedScheduleItemId: input.linkedScheduleItemId ?? null
       })
       return mapTask(getStmt.get(result.lastInsertRowid) as TaskRow)
     },
@@ -84,7 +101,10 @@ export function createTasksRepository(db: DB) {
         title: patch.title ?? current.title,
         description: patch.description !== undefined ? patch.description : current.description,
         priority: patch.priority ?? current.priority,
-        dueDate: patch.dueDate !== undefined ? patch.dueDate : current.due_date
+        dueDate: patch.dueDate !== undefined ? patch.dueDate : current.due_date,
+        linkedNoteId: patch.linkedNoteId !== undefined ? patch.linkedNoteId : current.linked_note_id,
+        linkedScheduleItemId:
+          patch.linkedScheduleItemId !== undefined ? patch.linkedScheduleItemId : current.linked_schedule_item_id
       })
       return mapTask(getStmt.get(id) as TaskRow)
     },

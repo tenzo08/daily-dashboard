@@ -11,6 +11,7 @@ export function registerScheduleHandlers(db: DB): void {
   registerHandler('schedule:listOccurrences', (rangeStartISO: string, rangeEndISO: string) =>
     schedule.listOccurrences(rangeStartISO, rangeEndISO)
   )
+  registerHandler('schedule:listItems', () => schedule.listItems())
   registerHandler('schedule:getItem', (id: number) => schedule.getItem(id))
   registerHandler('schedule:createItem', (input: NewScheduleItem) => {
     const item = schedule.createItem(input)

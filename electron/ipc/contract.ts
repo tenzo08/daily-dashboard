@@ -90,6 +90,8 @@ export interface ApiContract {
 
   schedule: {
     listOccurrences: (rangeStartISO: string, rangeEndISO: string) => Promise<ScheduleOccurrence[]>
+    /** All schedule items (not expanded into occurrences) — used by the task-link picker. */
+    listItems: () => Promise<ScheduleItem[]>
     getItem: (id: number) => Promise<ScheduleItem | undefined>
     createItem: (input: NewScheduleItem) => Promise<ScheduleItem>
     updateItem: (id: number, patch: Partial<NewScheduleItem>) => Promise<ScheduleItem>

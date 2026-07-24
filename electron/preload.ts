@@ -27,6 +27,7 @@ const api: ApiContract = {
   schedule: {
     listOccurrences: (rangeStartISO, rangeEndISO) =>
       ipcRenderer.invoke('schedule:listOccurrences', rangeStartISO, rangeEndISO),
+    listItems: () => ipcRenderer.invoke('schedule:listItems'),
     getItem: (id) => ipcRenderer.invoke('schedule:getItem', id),
     createItem: (input) => ipcRenderer.invoke('schedule:createItem', input),
     updateItem: (id, patch) => ipcRenderer.invoke('schedule:updateItem', id, patch),

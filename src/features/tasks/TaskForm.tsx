@@ -1,6 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { api } from '@/lib/api'
-import type { NewTask, Task, TaskPriority } from '../../../electron/db/types'
+import type { NewTask, NoteSummary, ScheduleItem, Task, TaskPriority } from '../../../electron/db/types'
 
 interface TaskFormProps {
   initial: Task | null
@@ -10,13 +10,25 @@ interface TaskFormProps {
 }
 
 const PRIORITIES: TaskPriority[] = ['low', 'medium', 'high']
+const NONE = ''
 
 export function TaskForm({ initial, onSaved, onCancel, onDelete }: TaskFormProps): JSX.Element {
   const [title, setTitle] = useState(initial?.title ?? '')
   const [description, setDescription] = useState(initial?.description ?? '')
   const [priority, setPriority] = useState<TaskPriority>(initial?.priority ?? 'medium')
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? '')
+  const [linkedNoteId, setLinkedNoteId] = useState<number | ''>(initial?.linkedNoteId ?? NONE)
+  const [linkedScheduleItemId, setLinkedScheduleItemId] = useState<number | ''>(
+    initial?.linkedScheduleItemId ?? NONE
+  )
+  const [notes, setNotes] = useState<NoteSummary[]>([])
+  const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([])
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    api.notes.listNotes({}).then(setNotes)
+    api.schedule.listItems().then(setScheduleItems)
+  }, [])
 
   async function handleSubmit(event: FormEvent): Promise<void> {
     event.preventDefault()
@@ -27,7 +39,9 @@ export function TaskForm({ initial, onSaved, onCancel, onDelete }: TaskFormProps
       title: title.trim(),
       description: description.trim() || undefined,
       priority,
-      dueDate: dueDate || undefined
+      dueDate: dueDate || undefined,
+      linkedNoteId: linkedNoteId === NONE ? null : linkedNoteId,
+      linkedScheduleItemId: linkedScheduleItemId === NONE ? null : linkedScheduleItemId
     }
 
     if (initial) {
@@ -43,7 +57,7 @@ export function TaskForm({ initial, onSaved, onCancel, onDelete }: TaskFormProps
     <div className="fixed inset-0 flex items-center justify-center bg-void/40">
       <form
         onSubmit={handleSubmit}
-        className="w-96 rounded-panel border border-line bg-surface p-5"
+        className="max-h-[90vh] w-96 overflow-auto rounded-panel border border-line bg-surface p-5"
       >
         <h2 className="mb-4 text-sm font-semibold text-graphite">{initial ? 'Edit task' : 'New task'}</h2>
 
@@ -92,6 +106,41 @@ export function TaskForm({ initial, onSaved, onCancel, onDelete }: TaskFormProps
                 onChange={(event) => setDueDate(event.target.value)}
                 className="mt-1 w-full rounded-control border border-line bg-paper px-2 py-1.5 text-sm text-graphite focus:border-brass focus:outline-none"
               />
+            </label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block text-xs text-graphite-dim">
+              Linked note
+              <select
+                value={linkedNoteId}
+                onChange={(event) => setLinkedNoteId(event.target.value ? Number(event.target.value) : NONE)}
+                className="mt-1 w-full rounded-control border border-line bg-paper px-2 py-1.5 text-sm text-graphite focus:border-brass focus:outline-none"
+              >
+                <option value={NONE}>None</option>
+                {notes.map((note) => (
+                  <option key={note.id} value={note.id}>
+                    {note.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block text-xs text-graphite-dim">
+              Linked event
+              <select
+                value={linkedScheduleItemId}
+                onChange={(event) =>
+                  setLinkedScheduleItemId(event.target.value ? Number(event.target.value) : NONE)
+                }
+                className="mt-1 w-full rounded-control border border-line bg-paper px-2 py-1.5 text-sm text-graphite focus:border-brass focus:outline-none"
+              >
+                <option value={NONE}>None</option>
+                {scheduleItems.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.title}
+                  </option>
+                ))}
+              </select>
             </label>
           </div>
         </div>

@@ -246,6 +246,10 @@ export interface Task {
   priority: TaskPriority
   dueDate: string | null
   completedAt: string | null
+  /** "Link notes ↔ tasks ↔ schedule" — a task can reference the note or
+   *  schedule item it came from. Independent, both optional, no exclusivity. */
+  linkedNoteId: number | null
+  linkedScheduleItemId: number | null
   createdAt: string
   updatedAt: string
 }
@@ -255,10 +259,14 @@ export interface NewTask {
   description?: string
   priority?: TaskPriority
   dueDate?: string
+  linkedNoteId?: number | null
+  linkedScheduleItemId?: number | null
 }
 
 export interface TaskFilter {
   status?: TaskStatus
+  linkedNoteId?: number
+  linkedScheduleItemId?: number
 }
 
 // ---- Activity log ----

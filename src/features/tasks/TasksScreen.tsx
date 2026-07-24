@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
 import { StatusPill, type StatusPillTone } from '@/components/ui/StatusPill'
-import type { Task, TaskPriority, TaskStatus } from '../../../electron/db/types'
+import type { NoteSummary, ScheduleItem, Task, TaskPriority, TaskStatus } from '../../../electron/db/types'
 import { TaskForm } from './TaskForm'
 
 const COLUMNS: { status: TaskStatus; label: string }[] = [
@@ -15,12 +15,20 @@ const NEXT_STATUS: Record<TaskStatus, TaskStatus> = { todo: 'in_progress', in_pr
 
 function TaskCard({
   task,
+  linkedNoteTitle,
+  linkedScheduleTitle,
   onAdvance,
-  onEdit
+  onEdit,
+  onOpenNote,
+  onOpenSchedule
 }: {
   task: Task
+  linkedNoteTitle: string | undefined
+  linkedScheduleTitle: string | undefined
   onAdvance: () => void
   onEdit: () => void
+  onOpenNote: () => void
+  onOpenSchedule: () => void
 }): JSX.Element {
   return (
     <div className="rounded-card border border-line bg-surface p-3">
@@ -31,6 +39,30 @@ function TaskCard({
         <StatusPill tone={PRIORITY_TONE[task.priority]}>{task.priority}</StatusPill>
       </div>
       {task.description && <p className="mb-2 text-xs text-graphite-dim">{task.description}</p>}
+
+      {(linkedNoteTitle || linkedScheduleTitle) && (
+        <div className="mb-2 flex flex-wrap gap-1.5">
+          {linkedNoteTitle && (
+            <button
+              type="button"
+              onClick={onOpenNote}
+              className="truncate rounded-pill bg-muted-tint px-2 py-0.5 text-[11px] text-muted hover:text-graphite"
+            >
+              📄 {linkedNoteTitle}
+            </button>
+          )}
+          {linkedScheduleTitle && (
+            <button
+              type="button"
+              onClick={onOpenSchedule}
+              className="truncate rounded-pill bg-muted-tint px-2 py-0.5 text-[11px] text-muted hover:text-graphite"
+            >
+              📅 {linkedScheduleTitle}
+            </button>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <span className="font-mono text-[11px] tabular-nums text-graphite-dim">{task.dueDate ?? '—'}</span>
         <button
@@ -49,16 +81,32 @@ interface TasksScreenProps {
   /** Set by the command palette (Ctrl+K) to deep-link straight to a task. */
   initialTaskId?: number
   onConsumedInitialSelection?: () => void
+  onOpenNote: (noteId: number) => void
+  onOpenSchedule: () => void
 }
 
-export function TasksScreen({ initialTaskId, onConsumedInitialSelection }: TasksScreenProps): JSX.Element {
+export function TasksScreen({
+  initialTaskId,
+  onConsumedInitialSelection,
+  onOpenNote,
+  onOpenSchedule
+}: TasksScreenProps): JSX.Element {
   const [tasks, setTasks] = useState<Task[]>([])
+  const [notes, setNotes] = useState<NoteSummary[]>([])
+  const [scheduleItems, setScheduleItems] = useState<ScheduleItem[]>([])
   const [editing, setEditing] = useState<Task | null>(null)
   const [showForm, setShowForm] = useState(false)
   const consumedIdRef = useRef<number | undefined>(undefined)
 
   const refresh = useCallback(async () => {
-    setTasks(await api.tasks.list())
+    const [taskList, noteList, itemList] = await Promise.all([
+      api.tasks.list(),
+      api.notes.listNotes({}),
+      api.schedule.listItems()
+    ])
+    setTasks(taskList)
+    setNotes(noteList)
+    setScheduleItems(itemList)
   }, [])
 
   useEffect(() => {
@@ -88,6 +136,9 @@ export function TasksScreen({ initialTaskId, onConsumedInitialSelection }: Tasks
     setEditing(null)
     refresh()
   }
+
+  const noteTitleById = new Map(notes.map((n) => [n.id, n.title]))
+  const scheduleTitleById = new Map(scheduleItems.map((s) => [s.id, s.title]))
 
   return (
     <div className="flex-1 overflow-auto p-6">
@@ -120,11 +171,17 @@ export function TasksScreen({ initialTaskId, onConsumedInitialSelection }: Tasks
                   <TaskCard
                     key={task.id}
                     task={task}
+                    linkedNoteTitle={task.linkedNoteId !== null ? noteTitleById.get(task.linkedNoteId) : undefined}
+                    linkedScheduleTitle={
+                      task.linkedScheduleItemId !== null ? scheduleTitleById.get(task.linkedScheduleItemId) : undefined
+                    }
                     onAdvance={() => handleAdvance(task)}
                     onEdit={() => {
                       setEditing(task)
                       setShowForm(true)
                     }}
+                    onOpenNote={() => task.linkedNoteId !== null && onOpenNote(task.linkedNoteId)}
+                    onOpenSchedule={onOpenSchedule}
                   />
                 ))}
                 {columnTasks.length === 0 && <p className="text-xs text-graphite-dim">Nothing here.</p>}

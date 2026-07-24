@@ -138,12 +138,23 @@ export function AppShell({ onLock }: AppShellProps): JSX.Element {
           />
         )}
         {route === 'notes' && (
-          <NotesScreen initialNoteId={pendingSelection?.type === 'note' ? pendingSelection.id : undefined} />
+          <NotesScreen
+            initialNoteId={pendingSelection?.type === 'note' ? pendingSelection.id : undefined}
+            onOpenTask={(id) => {
+              setRoute('tasks')
+              setPendingSelection({ type: 'task', id })
+            }}
+          />
         )}
         {route === 'tasks' && (
           <TasksScreen
             initialTaskId={pendingSelection?.type === 'task' ? pendingSelection.id : undefined}
             onConsumedInitialSelection={() => setPendingSelection(null)}
+            onOpenNote={(id) => {
+              setRoute('notes')
+              setPendingSelection({ type: 'note', id })
+            }}
+            onOpenSchedule={() => setRoute('schedule')}
           />
         )}
         {route === 'schedule' && <ScheduleScreen />}

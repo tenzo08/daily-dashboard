@@ -8,9 +8,10 @@ import { NoteEditor } from './NoteEditor'
 interface NotesScreenProps {
   /** Set by the command palette (Ctrl+K) to deep-link straight to a note. */
   initialNoteId?: number
+  onOpenTask: (taskId: number) => void
 }
 
-export function NotesScreen({ initialNoteId }: NotesScreenProps): JSX.Element {
+export function NotesScreen({ initialNoteId, onOpenTask }: NotesScreenProps): JSX.Element {
   const [folders, setFolders] = useState<NoteFolder[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [selectedFolderId, setSelectedFolderId] = useState<number | undefined>(undefined)
@@ -75,6 +76,7 @@ export function NotesScreen({ initialNoteId }: NotesScreenProps): JSX.Element {
           noteId={selectedNoteId}
           onSaved={refreshNotes}
           onTagsChanged={refreshTags}
+          onOpenTask={onOpenTask}
         />
       ) : (
         <div className="flex flex-1 items-center justify-center text-sm text-graphite-dim">

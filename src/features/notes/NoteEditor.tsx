@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
-import type { Tag } from '../../../electron/db/types'
+import type { Task, Tag } from '../../../electron/db/types'
 
 interface NoteEditorProps {
   noteId: number
   onSaved: () => void
   onTagsChanged: () => void
+  /** Set by AppShell — jumps to Tasks and opens the given task for editing. */
+  onOpenTask: (taskId: number) => void
 }
 
 type SaveState = 'idle' | 'saving' | 'saved'
@@ -14,15 +16,29 @@ type SaveState = 'idle' | 'saving' | 'saved'
 // FR-7 asks for bold/italic/lists/checkboxes, which Markdown syntax covers
 // without pulling in an editor dependency (Tiptap/Milkdown) this app
 // doesn't otherwise need. Revisit if richer formatting is requested.
-export function NoteEditor({ noteId, onSaved, onTagsChanged }: NoteEditorProps): JSX.Element {
+export function NoteEditor({ noteId, onSaved, onTagsChanged, onOpenTask }: NoteEditorProps): JSX.Element {
   const [title, setTitle] = useState('')
   const [bodyMd, setBodyMd] = useState('')
   const [noteTags, setNoteTags] = useState<Tag[]>([])
   const [newTagName, setNewTagName] = useState('')
+  const [linkedTasks, setLinkedTasks] = useState<Task[]>([])
   const [saveState, setSaveState] = useState<SaveState>('idle')
   const [loaded, setLoaded] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const skipNextSave = useRef(true)
+
+  const refreshLinkedTasks = useCallback(async () => {
+    setLinkedTasks(await api.tasks.list({ linkedNoteId: noteId }))
+  }, [noteId])
+
+  useEffect(() => {
+    refreshLinkedTasks()
+  }, [refreshLinkedTasks])
+
+  async function handleAddLinkedTask(): Promise<void> {
+    await api.tasks.create({ title: title.trim() || 'Untitled', linkedNoteId: noteId })
+    refreshLinkedTasks()
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -141,7 +157,32 @@ export function NoteEditor({ noteId, onSaved, onTagsChanged }: NoteEditorProps):
         placeholder="Start writing…"
       />
 
+      {linkedTasks.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 border-t border-line p-2">
+          <span className="text-[11px] uppercase tracking-wider text-graphite-dim">Tasks</span>
+          {linkedTasks.map((task) => (
+            <button
+              key={task.id}
+              type="button"
+              onClick={() => onOpenTask(task.id)}
+              className={`truncate rounded-pill px-2 py-0.5 text-[11px] ${
+                task.status === 'done' ? 'bg-success-tint text-success line-through' : 'bg-muted-tint text-muted'
+              }`}
+            >
+              {task.title}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center gap-1 border-t border-line p-2">
+        <button
+          type="button"
+          onClick={handleAddLinkedTask}
+          className="rounded-control px-2 py-0.5 text-xs text-graphite-dim hover:bg-line/40"
+        >
+          + Task
+        </button>
         {noteTags.map((tag) => (
           <span
             key={tag.id}
