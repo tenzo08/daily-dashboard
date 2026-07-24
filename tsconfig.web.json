@@ -22,6 +22,7 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "electron/ipc/contract.ts"
+    "electron/ipc/contract.ts",
+    "electron/db/types.ts"
   ]
 }

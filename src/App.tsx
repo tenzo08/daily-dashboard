@@ -4,9 +4,8 @@ import { LockScreen } from '@/features/lock/LockScreen'
 import { OnboardingSetPin } from '@/features/lock/OnboardingSetPin'
 import { AppShell } from '@/features/shell/AppShell'
 
-// Lightweight auth gate — Phase 4's router shell (T4.4) will subsume this
-// with real routes. Until then, this is the whole app: lock screen is
-// unconditionally first (FR-19), everything else is a placeholder.
+// Auth gate — lock screen is unconditionally first (FR-19), AppShell (with
+// the route sidebar) only renders once unlocked.
 type AuthState = 'loading' | 'needs-setup' | 'locked' | 'unlocked'
 
 export default function App(): JSX.Element {
@@ -15,6 +14,14 @@ export default function App(): JSX.Element {
   useEffect(() => {
     api.auth.isPinSet().then((pinSet) => setAuthState(pinSet ? 'locked' : 'needs-setup'))
   }, [])
+
+  useEffect(() => {
+    // Ensures today's daily note exists right after unlock, before any
+    // screen is shown — matches ARCHITECTURE.md §5.1's sequence.
+    if (authState === 'unlocked') {
+      api.notes.getOrCreateDailyNote()
+    }
+  }, [authState])
 
   if (authState === 'loading') {
     return <div className="h-screen w-screen bg-neutral-50" />

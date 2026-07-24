@@ -4,8 +4,10 @@
 // this) can import it across the tsconfig.node/tsconfig.web boundary.
 //
 // Each domain starts as an empty placeholder and is filled in with real
-// methods as its phase lands (P5 notes, P6 schedule, P7 budget, P9
-// dashboard, P11 settings) — see workflow_daily-dashboard.md.
+// methods as its phase lands (P6 schedule, P7 budget, P9 dashboard, P11
+// settings) — see workflow_daily-dashboard.md.
+
+import type { NewNote, Note, NoteFilter, NoteFolder, NoteSummary, Tag } from '../db/types'
 
 export interface VerifyPinResult {
   ok: boolean
@@ -21,11 +23,27 @@ export interface ApiContract {
     resetData: () => Promise<void>
   }
 
+  notes: {
+    listFolders: () => Promise<NoteFolder[]>
+    createFolder: (name: string, parentId?: number | null) => Promise<NoteFolder>
+    listNotes: (filter?: NoteFilter) => Promise<NoteSummary[]>
+    getNote: (id: number) => Promise<Note | undefined>
+    createNote: (input: NewNote) => Promise<Note>
+    saveNote: (
+      id: number,
+      patch: { title?: string; bodyMd?: string; folderId?: number | null }
+    ) => Promise<Note>
+    getOrCreateDailyNote: () => Promise<Note>
+    listTags: () => Promise<Tag[]>
+    tagsForNote: (noteId: number) => Promise<Tag[]>
+    addTagToNote: (noteId: number, tagName: string) => Promise<Tag>
+    removeTagFromNote: (noteId: number, tagId: number) => Promise<void>
+  }
+
   accounts: Record<string, never>
   transactions: Record<string, never>
   categories: Record<string, never>
   budgets: Record<string, never>
-  notes: Record<string, never>
   schedule: Record<string, never>
   settings: Record<string, never>
   dashboard: Record<string, never>
