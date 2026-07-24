@@ -11,6 +11,7 @@ import { registerCategoriesHandlers } from './ipc/categories.ipc'
 import { registerTransactionsHandlers } from './ipc/transactions.ipc'
 import { registerBudgetsHandlers } from './ipc/budgets.ipc'
 import { createTray } from './tray/tray'
+import { startReminderLoop } from './scheduler/reminderLoop'
 
 let mainWindow: BrowserWindow | null = null
 // Electron GCs the Tray (icon vanishes) if nothing references it — this
@@ -103,6 +104,9 @@ if (!gotSingleInstanceLock) {
 
     const window = createWindow()
     tray = createTray(window)
+    // getWindow() closes over the outer `mainWindow`, not this snapshot,
+    // so it stays correct if the window is ever recreated via 'activate'.
+    startReminderLoop(db, () => mainWindow)
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
