@@ -91,7 +91,11 @@ const api: ApiContract = {
 
   settings: {
     getLaunchTime: () => ipcRenderer.invoke('settings:getLaunchTime'),
-    setLaunchTime: (time) => ipcRenderer.invoke('settings:setLaunchTime', time)
+    setLaunchTime: (time) => ipcRenderer.invoke('settings:setLaunchTime', time),
+    getIdleLockMinutes: () => ipcRenderer.invoke('settings:getIdleLockMinutes'),
+    setIdleLockMinutes: (minutes) => ipcRenderer.invoke('settings:setIdleLockMinutes', minutes),
+    getActivityRetentionDays: () => ipcRenderer.invoke('settings:getActivityRetentionDays'),
+    setActivityRetentionDays: (days) => ipcRenderer.invoke('settings:setActivityRetentionDays', days)
   }
 }
 

@@ -2,6 +2,7 @@ import { app, BrowserWindow, shell, type Tray } from 'electron'
 import { join } from 'path'
 import { is } from './lib/env'
 import { openDatabase } from './db'
+import { createActivityLogRepository } from './db/repositories/activityLog'
 import { createCredentialsRepository } from './db/repositories/credentials'
 import { createSettingsRepository } from './db/repositories/settings'
 import { registerAuthHandlers } from './ipc/auth.ipc'
@@ -16,7 +17,7 @@ import { registerTasksHandlers } from './ipc/tasks.ipc'
 import { registerActivityHandlers } from './ipc/activity.ipc'
 import { registerSystemHandlers } from './ipc/system.ipc'
 import { registerDashboardHandlers } from './ipc/dashboard.ipc'
-import { registerSettingsHandlers } from './ipc/settings.ipc'
+import { DEFAULT_ACTIVITY_RETENTION_DAYS, registerSettingsHandlers } from './ipc/settings.ipc'
 import { createTray } from './tray/tray'
 import { startReminderLoop } from './scheduler/reminderLoop'
 
@@ -106,6 +107,7 @@ if (!gotSingleInstanceLock) {
     const db = openDatabase(dbFilePath)
     const settings = createSettingsRepository(db)
     const credentials = createCredentialsRepository(db)
+    const activity = createActivityLogRepository(db)
     registerAuthHandlers(db, settings, dbFilePath, credentials)
     registerNotesHandlers(db)
     registerScheduleHandlers(db)
@@ -118,7 +120,13 @@ if (!gotSingleInstanceLock) {
     registerActivityHandlers(db)
     registerSystemHandlers()
     registerDashboardHandlers(db)
-    registerSettingsHandlers(settings)
+    registerSettingsHandlers(settings, activity)
+
+    // Prune on every startup, not just when the setting changes — covers
+    // the common case where retention was already configured before this
+    // launch and entries have piled up since.
+    const retentionDays = Number(settings.get('activity_retention_days') ?? DEFAULT_ACTIVITY_RETENTION_DAYS)
+    activity.pruneOlderThan(retentionDays)
 
     const window = createWindow()
     tray = createTray(window)

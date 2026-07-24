@@ -7,6 +7,12 @@ export function SettingsScreen(): JSX.Element {
   const [launchTime, setLaunchTime] = useState('')
   const [launchTimeSaveState, setLaunchTimeSaveState] = useState<SaveState>('idle')
 
+  const [idleLockMinutes, setIdleLockMinutes] = useState('')
+  const [idleLockSaveState, setIdleLockSaveState] = useState<SaveState>('idle')
+
+  const [retentionDays, setRetentionDays] = useState('')
+  const [retentionSaveState, setRetentionSaveState] = useState<SaveState>('idle')
+
   const [currentPin, setCurrentPin] = useState('')
   const [newPin, setNewPin] = useState('')
   const [confirmNewPin, setConfirmNewPin] = useState('')
@@ -15,6 +21,8 @@ export function SettingsScreen(): JSX.Element {
 
   useEffect(() => {
     api.settings.getLaunchTime().then(setLaunchTime)
+    api.settings.getIdleLockMinutes().then((minutes) => setIdleLockMinutes(String(minutes)))
+    api.settings.getActivityRetentionDays().then((days) => setRetentionDays(String(days)))
   }, [])
 
   async function handleLaunchTimeChange(value: string): Promise<void> {
@@ -23,6 +31,24 @@ export function SettingsScreen(): JSX.Element {
     setLaunchTimeSaveState('saving')
     await api.settings.setLaunchTime(value)
     setLaunchTimeSaveState('saved')
+  }
+
+  async function handleIdleLockChange(value: string): Promise<void> {
+    setIdleLockMinutes(value)
+    const minutes = Number(value)
+    if (value === '' || Number.isNaN(minutes) || minutes < 0) return
+    setIdleLockSaveState('saving')
+    await api.settings.setIdleLockMinutes(minutes)
+    setIdleLockSaveState('saved')
+  }
+
+  async function handleRetentionChange(value: string): Promise<void> {
+    setRetentionDays(value)
+    const days = Number(value)
+    if (value === '' || Number.isNaN(days) || days < 0) return
+    setRetentionSaveState('saving')
+    await api.settings.setActivityRetentionDays(days)
+    setRetentionSaveState('saved')
   }
 
   async function handlePinChange(event: FormEvent): Promise<void> {
@@ -74,6 +100,42 @@ export function SettingsScreen(): JSX.Element {
           </span>
         </div>
         <p className="mt-1 text-xs text-graphite-dim">The app auto-launches around this time every day.</p>
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-sm font-medium text-graphite-dim">Auto-lock</h2>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min={0}
+            value={idleLockMinutes}
+            onChange={(event) => handleIdleLockChange(event.target.value)}
+            className="w-20 rounded-control border border-line bg-surface px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
+          />
+          <span className="text-xs text-graphite-dim">minutes idle</span>
+          <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
+            {idleLockSaveState === 'saving' ? 'Saving…' : idleLockSaveState === 'saved' ? 'Saved' : ''}
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-graphite-dim">Locks the vault automatically after this much inactivity. 0 disables it.</p>
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-sm font-medium text-graphite-dim">Activity log</h2>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min={0}
+            value={retentionDays}
+            onChange={(event) => handleRetentionChange(event.target.value)}
+            className="w-20 rounded-control border border-line bg-surface px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
+          />
+          <span className="text-xs text-graphite-dim">days of history to keep</span>
+          <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
+            {retentionSaveState === 'saving' ? 'Saving…' : retentionSaveState === 'saved' ? 'Saved' : ''}
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-graphite-dim">Older entries are pruned automatically. 0 keeps everything.</p>
       </section>
 
       <section>

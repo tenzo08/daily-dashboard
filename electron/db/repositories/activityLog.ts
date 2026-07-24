@@ -18,6 +18,7 @@ export function createActivityLogRepository(db: DB) {
   const lastForTypeStmt = db.prepare(`
     SELECT * FROM activity_log WHERE event_type = ? ORDER BY created_at DESC, id DESC LIMIT 1
   `)
+  const pruneStmt = db.prepare(`DELETE FROM activity_log WHERE created_at < datetime('now', @cutoff)`)
 
   return {
     log(eventType: string, message: string): void {
@@ -32,6 +33,12 @@ export function createActivityLogRepository(db: DB) {
     lastForType(eventType: string): ActivityEntry | undefined {
       const row = lastForTypeStmt.get(eventType) as ActivityRow | undefined
       return row ? mapEntry(row) : undefined
+    },
+
+    /** No-op when days <= 0 (Settings' "keep everything" option). */
+    pruneOlderThan(days: number): void {
+      if (days <= 0) return
+      pruneStmt.run({ cutoff: `-${days} days` })
     }
   }
 }

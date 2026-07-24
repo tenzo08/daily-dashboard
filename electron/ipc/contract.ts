@@ -153,5 +153,11 @@ export interface ApiContract {
     getLaunchTime: () => Promise<string>
     /** Also re-registers the Task Scheduler entry (ARCHITECTURE.md §5.3). */
     setLaunchTime: (time: string) => Promise<void>
+    /** 0 = disabled. */
+    getIdleLockMinutes: () => Promise<number>
+    setIdleLockMinutes: (minutes: number) => Promise<void>
+    /** 0 = keep forever. */
+    getActivityRetentionDays: () => Promise<number>
+    setActivityRetentionDays: (days: number) => Promise<void>
   }
 }
