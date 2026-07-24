@@ -55,6 +55,29 @@ export function DashboardScreen({ onNavigate }: DashboardScreenProps): JSX.Eleme
     <div className="flex-1 overflow-auto p-6">
       <h1 className="mb-4 text-lg font-semibold text-graphite">Today</h1>
 
+      {snapshot.budgetSnapshot.alerts.length > 0 && (
+        <div className="mb-5 space-y-1.5">
+          {snapshot.budgetSnapshot.alerts.map((alert) => (
+            <button
+              key={alert.categoryId}
+              type="button"
+              onClick={() => onNavigate('budget')}
+              className={`flex w-full items-center justify-between rounded-card border px-3.5 py-2 text-left text-sm ${
+                alert.status === 'over' ? 'border-danger/30 bg-danger-tint' : 'border-warning/30 bg-warning-tint'
+              }`}
+            >
+              <span className="text-graphite">
+                <strong className="font-medium">{alert.categoryName}</strong>{' '}
+                {alert.status === 'over' ? 'is over budget' : 'is approaching its limit'}
+              </span>
+              <span className="font-mono text-xs tabular-nums text-graphite-dim">
+                {alert.monthSpend.toLocaleString()} / {alert.limitAmount.toLocaleString()}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="mb-5 grid grid-cols-4 gap-3">
         <StatTile label="Credentials" value={String(snapshot.counts.credentials)} onClick={() => onNavigate('vault')} />
         <StatTile label="Notes" value={String(snapshot.counts.notes)} onClick={() => onNavigate('notes')} />

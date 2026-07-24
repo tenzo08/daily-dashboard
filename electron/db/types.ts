@@ -59,6 +59,14 @@ export interface CategorySpend {
   amount: number
 }
 
+export interface BudgetAlert {
+  categoryId: number
+  categoryName: string
+  monthSpend: number
+  limitAmount: number
+  status: 'over' | 'approaching'
+}
+
 export type TransactionType = 'expense' | 'income' | 'transfer'
 
 export interface Transaction {

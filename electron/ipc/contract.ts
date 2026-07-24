@@ -10,6 +10,7 @@ import type {
   Account,
   AccountBalance,
   ActivityEntry,
+  BudgetAlert,
   BudgetWithSpend,
   Category,
   CategorySpend,
@@ -50,6 +51,7 @@ export interface DashboardSnapshot {
     accountBalances: AccountBalance[]
     monthSpendByCategory: CategorySpend[]
     monthIncome: number
+    alerts: BudgetAlert[]
   }
 }
 

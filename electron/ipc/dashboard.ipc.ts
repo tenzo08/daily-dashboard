@@ -1,12 +1,14 @@
 import type { DB } from '../db'
 import { createAccountsRepository } from '../db/repositories/accounts'
 import { createActivityLogRepository } from '../db/repositories/activityLog'
+import { createBudgetsRepository } from '../db/repositories/budgets'
 import { createCategoriesRepository } from '../db/repositories/categories'
 import { createCredentialsRepository } from '../db/repositories/credentials'
 import { createNotesRepository } from '../db/repositories/notes'
 import { createScheduleRepository } from '../db/repositories/schedule'
 import { createTasksRepository } from '../db/repositories/tasks'
 import { createTransactionsRepository } from '../db/repositories/transactions'
+import type { BudgetAlert } from '../db/types'
 import { toDateKey } from '../../src/lib/rruleHelpers'
 import { registerHandler } from './registerHandler'
 
@@ -22,6 +24,7 @@ export function registerDashboardHandlers(db: DB): void {
   const credentials = createCredentialsRepository(db)
   const tasks = createTasksRepository(db)
   const activity = createActivityLogRepository(db)
+  const budgets = createBudgetsRepository(db)
 
   registerHandler('dashboard:getToday', () => {
     const note = notes.getOrCreateDailyNote()
@@ -54,6 +57,23 @@ export function registerDashboardHandlers(db: DB): void {
 
     const upcomingTasks = tasks.list({}).filter((t) => t.status !== 'done').slice(0, UPCOMING_TASKS_LIMIT)
 
+    const budgetAlerts: BudgetAlert[] = budgets
+      .list()
+      .map((budget) => {
+        const ratio = budget.limitAmount > 0 ? budget.monthSpend / budget.limitAmount : 0
+        const status = ratio >= 1 ? 'over' : ratio >= budget.thresholdPct / 100 ? 'approaching' : null
+        return status
+          ? {
+              categoryId: budget.categoryId,
+              categoryName: budget.categoryName,
+              monthSpend: budget.monthSpend,
+              limitAmount: budget.limitAmount,
+              status
+            }
+          : null
+      })
+      .filter((alert): alert is BudgetAlert => alert !== null)
+
     return {
       note,
       schedule: scheduleOccurrences,
@@ -64,7 +84,7 @@ export function registerDashboardHandlers(db: DB): void {
         notes: notes.listNotes({}).length,
         openTasks: tasks.countOpen()
       },
-      budgetSnapshot: { accountBalances, monthSpendByCategory, monthIncome }
+      budgetSnapshot: { accountBalances, monthSpendByCategory, monthIncome, alerts: budgetAlerts }
     }
   })
 }
