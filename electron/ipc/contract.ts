@@ -4,16 +4,23 @@
 // this) can import it across the tsconfig.node/tsconfig.web boundary.
 //
 // Each domain starts as an empty placeholder and is filled in with real
-// methods as its phase lands (P3 auth, P5 notes, P6 schedule, P7 budget,
-// P9 dashboard, P11 settings) — see workflow_daily-dashboard.md.
+// methods as its phase lands (P5 notes, P6 schedule, P7 budget, P9
+// dashboard, P11 settings) — see workflow_daily-dashboard.md.
+
+export interface VerifyPinResult {
+  ok: boolean
+  lockedUntilMs?: number
+}
 
 export interface ApiContract {
-  /** Phase 2 smoke test only — proves the IPC round trip. Removed once a
-   *  real handler (e.g. auth.verifyPin in Phase 3) exercises the same
-   *  preload/contextBridge/ipcMain wiring. */
-  ping: () => Promise<string>
+  auth: {
+    isPinSet: () => Promise<boolean>
+    setPin: (pin: string) => Promise<void>
+    verifyPin: (pin: string) => Promise<VerifyPinResult>
+    /** Wipes local data and relaunches the app (REQUIREMENTS.md OQ-1). */
+    resetData: () => Promise<void>
+  }
 
-  auth: Record<string, never>
   accounts: Record<string, never>
   transactions: Record<string, never>
   categories: Record<string, never>

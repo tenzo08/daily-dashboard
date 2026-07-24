@@ -13,7 +13,8 @@
     "preview": "electron-vite preview",
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "db:harness": "cross-env ELECTRON_RUN_AS_NODE=1 electron node_modules/tsx/dist/cli.mjs electron/db/__harness__.ts"
+    "db:harness": "cross-env ELECTRON_RUN_AS_NODE=1 electron node_modules/tsx/dist/cli.mjs electron/db/__harness__.ts",
+    "auth:harness": "cross-env ELECTRON_RUN_AS_NODE=1 electron node_modules/tsx/dist/cli.mjs electron/lock/__harness__.ts"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.1",

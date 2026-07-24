@@ -1,8 +1,9 @@
 import { app, BrowserWindow, shell } from 'electron'
 import { join } from 'path'
 import { is } from './lib/env'
-import { openDatabase, type DB } from './db'
-import { registerHandler } from './ipc/registerHandler'
+import { openDatabase } from './db'
+import { createSettingsRepository } from './db/repositories/settings'
+import { registerAuthHandlers } from './ipc/auth.ipc'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -46,18 +47,6 @@ function createWindow(): void {
   }
 }
 
-function registerIpcHandlers(db: DB): void {
-  // Phase 2 smoke test only — proves preload/contextBridge/ipcMain wiring
-  // AND the real DB connection work end to end. Delete once a real handler
-  // (Phase 3's auth.verifyPin) exercises the same path. See
-  // electron/ipc/contract.ts.
-  registerHandler('ping', () => {
-    const { n } = db.prepare('SELECT COUNT(*) AS n FROM _migrations').get() as { n: number }
-    console.log(`[ipc] ping received (migrations applied: ${n})`)
-    return 'pong'
-  })
-}
-
 const gotSingleInstanceLock = app.requestSingleInstanceLock()
 if (!gotSingleInstanceLock) {
   app.quit()
@@ -71,8 +60,10 @@ if (!gotSingleInstanceLock) {
   })
 
   app.whenReady().then(() => {
-    const db = openDatabase(join(app.getPath('userData'), 'data.db'))
-    registerIpcHandlers(db)
+    const dbFilePath = join(app.getPath('userData'), 'data.db')
+    const db = openDatabase(dbFilePath)
+    const settings = createSettingsRepository(db)
+    registerAuthHandlers(db, settings, dbFilePath)
     createWindow()
 
     app.on('activate', () => {
