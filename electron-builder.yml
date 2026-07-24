@@ -1,0 +1,20 @@
+appId: com.dailydashboard.app
+productName: Daily Dashboard
+directories:
+  output: release
+  buildResources: resources
+files:
+  - out/**/*
+  - package.json
+extraResources:
+  - from: resources/tray-icon.png
+    to: tray-icon.png
+win:
+  target: nsis
+  icon: resources/icon.ico
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Daily Dashboard

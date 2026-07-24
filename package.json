@@ -2,6 +2,7 @@
   "name": "daily-dashboard",
   "version": "0.1.0",
   "description": "Local-only Windows desktop daily hub: notes, schedule, budget tracker, auto-launched daily",
+  "author": "Raphael",
   "private": true,
   "type": "module",
   "main": "./out/main/main.js",
