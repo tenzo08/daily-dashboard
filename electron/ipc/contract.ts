@@ -4,19 +4,28 @@
 // this) can import it across the tsconfig.node/tsconfig.web boundary.
 //
 // Each domain starts as an empty placeholder and is filled in with real
-// methods as its phase lands (P7 budget, P9 dashboard, P11 settings) —
-// see workflow_daily-dashboard.md.
+// methods as its phase lands (P9 dashboard, P11 settings) — see
+// workflow_daily-dashboard.md.
 
 import type {
+  Account,
+  AccountBalance,
+  BudgetWithSpend,
+  Category,
+  NewAccount,
+  NewCategory,
   NewNote,
   NewScheduleItem,
+  NewTransaction,
   Note,
   NoteFilter,
   NoteFolder,
   NoteSummary,
   ScheduleItem,
   ScheduleOccurrence,
-  Tag
+  Tag,
+  Transaction,
+  TransactionFilter
 } from '../db/types'
 
 export interface VerifyPinResult {
@@ -59,10 +68,31 @@ export interface ApiContract {
     toggleCompletion: (itemId: number, occurrenceDate: string) => Promise<void>
   }
 
-  accounts: Record<string, never>
-  transactions: Record<string, never>
-  categories: Record<string, never>
-  budgets: Record<string, never>
+  accounts: {
+    list: (includeArchived?: boolean) => Promise<Account[]>
+    create: (input: NewAccount) => Promise<Account>
+    update: (id: number, patch: Partial<NewAccount>) => Promise<Account>
+    archive: (id: number) => Promise<void>
+    getBalances: () => Promise<AccountBalance[]>
+  }
+
+  transactions: {
+    list: (filter?: TransactionFilter) => Promise<Transaction[]>
+    create: (input: NewTransaction) => Promise<Transaction>
+    update: (id: number, patch: Partial<NewTransaction>) => Promise<Transaction>
+    delete: (id: number) => Promise<void>
+  }
+
+  categories: {
+    list: () => Promise<Category[]>
+    create: (input: NewCategory) => Promise<Category>
+  }
+
+  budgets: {
+    list: () => Promise<BudgetWithSpend[]>
+    set: (categoryId: number, limitAmount: number, thresholdPct?: number) => Promise<void>
+  }
+
   settings: Record<string, never>
   dashboard: Record<string, never>
 }

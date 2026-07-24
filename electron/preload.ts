@@ -34,11 +34,33 @@ const api: ApiContract = {
       ipcRenderer.invoke('schedule:toggleCompletion', itemId, occurrenceDate)
   },
 
+  accounts: {
+    list: (includeArchived) => ipcRenderer.invoke('accounts:list', includeArchived),
+    create: (input) => ipcRenderer.invoke('accounts:create', input),
+    update: (id, patch) => ipcRenderer.invoke('accounts:update', id, patch),
+    archive: (id) => ipcRenderer.invoke('accounts:archive', id),
+    getBalances: () => ipcRenderer.invoke('accounts:getBalances')
+  },
+
+  transactions: {
+    list: (filter) => ipcRenderer.invoke('transactions:list', filter),
+    create: (input) => ipcRenderer.invoke('transactions:create', input),
+    update: (id, patch) => ipcRenderer.invoke('transactions:update', id, patch),
+    delete: (id) => ipcRenderer.invoke('transactions:delete', id)
+  },
+
+  categories: {
+    list: () => ipcRenderer.invoke('categories:list'),
+    create: (input) => ipcRenderer.invoke('categories:create', input)
+  },
+
+  budgets: {
+    list: () => ipcRenderer.invoke('budgets:list'),
+    set: (categoryId, limitAmount, thresholdPct) =>
+      ipcRenderer.invoke('budgets:set', categoryId, limitAmount, thresholdPct)
+  },
+
   // Filled in as each phase lands (see ApiContract in ipc/contract.ts).
-  accounts: {},
-  transactions: {},
-  categories: {},
-  budgets: {},
   settings: {},
   dashboard: {}
 }

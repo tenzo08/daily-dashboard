@@ -6,6 +6,10 @@ import { createSettingsRepository } from './db/repositories/settings'
 import { registerAuthHandlers } from './ipc/auth.ipc'
 import { registerNotesHandlers } from './ipc/notes.ipc'
 import { registerScheduleHandlers } from './ipc/schedule.ipc'
+import { registerAccountsHandlers } from './ipc/accounts.ipc'
+import { registerCategoriesHandlers } from './ipc/categories.ipc'
+import { registerTransactionsHandlers } from './ipc/transactions.ipc'
+import { registerBudgetsHandlers } from './ipc/budgets.ipc'
 import { createTray } from './tray/tray'
 
 let mainWindow: BrowserWindow | null = null
@@ -92,6 +96,10 @@ if (!gotSingleInstanceLock) {
     registerAuthHandlers(db, settings, dbFilePath)
     registerNotesHandlers(db)
     registerScheduleHandlers(db)
+    registerAccountsHandlers(db)
+    registerCategoriesHandlers(db)
+    registerTransactionsHandlers(db)
+    registerBudgetsHandlers(db)
 
     const window = createWindow()
     tray = createTray(window)
