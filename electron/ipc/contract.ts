@@ -4,14 +4,14 @@
 // this) can import it across the tsconfig.node/tsconfig.web boundary.
 //
 // Each domain starts as an empty placeholder and is filled in with real
-// methods as its phase lands (P9 dashboard, P11 settings) — see
-// workflow_daily-dashboard.md.
+// methods as its phase lands (P11 settings) — see workflow_daily-dashboard.md.
 
 import type {
   Account,
   AccountBalance,
   BudgetWithSpend,
   Category,
+  CategorySpend,
   NewAccount,
   NewCategory,
   NewNote,
@@ -27,6 +27,15 @@ import type {
   Transaction,
   TransactionFilter
 } from '../db/types'
+
+export interface DashboardSnapshot {
+  note: Note
+  schedule: ScheduleOccurrence[]
+  budgetSnapshot: {
+    accountBalances: AccountBalance[]
+    monthSpendByCategory: CategorySpend[]
+  }
+}
 
 export interface VerifyPinResult {
   ok: boolean
@@ -93,6 +102,9 @@ export interface ApiContract {
     set: (categoryId: number, limitAmount: number, thresholdPct?: number) => Promise<void>
   }
 
+  dashboard: {
+    getToday: () => Promise<DashboardSnapshot>
+  }
+
   settings: Record<string, never>
-  dashboard: Record<string, never>
 }

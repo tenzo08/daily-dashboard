@@ -9,7 +9,7 @@ import { SettingsScreen } from '@/features/settings/SettingsScreen'
 // react-router-dom (and its URL/history handling doesn't map cleanly onto
 // an Electron file:// renderer anyway). Revisit if a screen needs
 // deep-linkable params.
-type Route = 'dashboard' | 'notes' | 'schedule' | 'budget' | 'settings'
+export type Route = 'dashboard' | 'notes' | 'schedule' | 'budget' | 'settings'
 
 const NAV_ITEMS: { id: Route; label: string }[] = [
   { id: 'dashboard', label: 'Today' },
@@ -19,17 +19,8 @@ const NAV_ITEMS: { id: Route; label: string }[] = [
   { id: 'settings', label: 'Settings' }
 ]
 
-const SCREENS: Record<Route, () => JSX.Element> = {
-  dashboard: DashboardScreen,
-  notes: NotesScreen,
-  schedule: ScheduleScreen,
-  budget: BudgetScreen,
-  settings: SettingsScreen
-}
-
 export function AppShell(): JSX.Element {
   const [route, setRoute] = useState<Route>('dashboard')
-  const Screen = SCREENS[route]
 
   return (
     <div className="flex h-screen w-screen bg-neutral-50 text-neutral-900">
@@ -51,7 +42,13 @@ export function AppShell(): JSX.Element {
         </ul>
       </nav>
       <main className="flex-1 overflow-auto">
-        <Screen />
+        {/* Dashboard needs cross-navigation (deep-link into a section's
+            full view, FR-18); the others are self-contained. */}
+        {route === 'dashboard' && <DashboardScreen onNavigate={setRoute} />}
+        {route === 'notes' && <NotesScreen />}
+        {route === 'schedule' && <ScheduleScreen />}
+        {route === 'budget' && <BudgetScreen />}
+        {route === 'settings' && <SettingsScreen />}
       </main>
     </div>
   )

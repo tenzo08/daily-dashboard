@@ -60,9 +60,12 @@ const api: ApiContract = {
       ipcRenderer.invoke('budgets:set', categoryId, limitAmount, thresholdPct)
   },
 
+  dashboard: {
+    getToday: () => ipcRenderer.invoke('dashboard:getToday')
+  },
+
   // Filled in as each phase lands (see ApiContract in ipc/contract.ts).
-  settings: {},
-  dashboard: {}
+  settings: {}
 }
 
 contextBridge.exposeInMainWorld('api', api)
