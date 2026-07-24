@@ -1,8 +1,19 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
+import type { ApiContract } from './ipc/contract'
 
-// Phase 2 (IPC + security skeleton) fills this in with the real
-// window.api surface defined in ARCHITECTURE.md §6. Left empty here
-// so the renderer has something safe to import against in the meantime.
-const api = {}
+const api: ApiContract = {
+  ping: () => ipcRenderer.invoke('ping'),
+
+  // Filled in as each phase lands (see ApiContract in ipc/contract.ts).
+  auth: {},
+  accounts: {},
+  transactions: {},
+  categories: {},
+  budgets: {},
+  notes: {},
+  schedule: {},
+  settings: {},
+  dashboard: {}
+}
 
 contextBridge.exposeInMainWorld('api', api)

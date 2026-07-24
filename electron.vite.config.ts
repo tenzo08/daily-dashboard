@@ -12,7 +12,14 @@ export default defineConfig({
   },
   preload: {
     build: {
-      lib: { entry: resolve(__dirname, 'electron/preload.ts') }
+      lib: { entry: resolve(__dirname, 'electron/preload.ts') },
+      // Sandboxed preload scripts (webPreferences.sandbox: true) don't
+      // support ESM import — force CJS via an explicit .cjs extension so
+      // Node's module loader doesn't apply the root package.json's
+      // "type": "module" to this output.
+      rollupOptions: {
+        output: { format: 'cjs', entryFileNames: '[name].cjs' }
+      }
     },
     plugins: [externalizeDepsPlugin()]
   },
