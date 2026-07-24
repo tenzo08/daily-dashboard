@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import { LockScreen } from '@/features/lock/LockScreen'
 import { OnboardingSetPin } from '@/features/lock/OnboardingSetPin'
+import { AppShell } from '@/features/shell/AppShell'
 
 // Lightweight auth gate — Phase 4's router shell (T4.4) will subsume this
 // with real routes. Until then, this is the whole app: lock screen is
@@ -27,12 +28,5 @@ export default function App(): JSX.Element {
     return <LockScreen onUnlock={() => setAuthState('unlocked')} />
   }
 
-  return (
-    <div className="flex h-screen w-screen items-center justify-center bg-neutral-50 text-neutral-900">
-      <div className="text-center">
-        <h1 className="text-2xl font-semibold">Daily Dashboard</h1>
-        <p className="mt-2 text-sm text-neutral-500">Unlocked. Today dashboard lands in a later phase.</p>
-      </div>
-    </div>
-  )
+  return <AppShell />
 }
