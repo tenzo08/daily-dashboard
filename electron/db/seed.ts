@@ -1,6 +1,8 @@
 // Dev-only: populates the real dev-mode SQLite DB (the same file `npm run
-// dev` uses — %APPDATA%/daily-dashboard/data.db) with realistic sample
-// data, so every screen has something to render without manual entry.
+// dev` uses — %APPDATA%/daily-dashboard-dev/data.db) with realistic sample
+// data, so every screen has something to render without manual entry. This
+// is a separate file from the packaged app's %APPDATA%/daily-dashboard/data.db,
+// so the built .exe never ships with seeded dummy data.
 // Run via `npm run db:seed`. Safe to re-run: each section tops itself up
 // to its target count rather than skipping outright, so running it again
 // after adding real data just fills the gap up to the target.
@@ -33,9 +35,10 @@ const TARGET = 20 // "at least 20 on each page"
 function resolveDevUserDataDir(): string {
   const appData = process.env['APPDATA']
   if (!appData) throw new Error('APPDATA is not set — this script assumes a Windows dev environment')
-  // Electron's default userData path: {appData}/{package.json "name"} — see
-  // ARCHITECTURE.md's data file location note.
-  return join(appData, 'daily-dashboard')
+  // Must match the dev-mode override in electron/main.ts — dev and packaged
+  // builds use separate userData dirs so seeded dummy data never ends up in
+  // the built .exe. See ARCHITECTURE.md's data file location note.
+  return join(appData, 'daily-dashboard-dev')
 }
 
 function dateKey(d: Date): string {

@@ -31,6 +31,15 @@ let tray: Tray | null = null
 // (tray's Quit item, OS shutdown). See ARCHITECTURE.md §5.1.
 let isQuitting = false
 
+// Packaged and dev builds must never share a data file — otherwise
+// `npm run db:seed`'s dummy data (or any dev-time experimentation) would
+// show up in the built .exe. Dev keeps its own '-dev' userData dir; the
+// packaged app gets the plain 'daily-dashboard' dir and always starts
+// empty. Must run before any app.getPath('userData') call below.
+if (!app.isPackaged) {
+  app.setPath('userData', join(app.getPath('appData'), 'daily-dashboard-dev'))
+}
+
 function createWindow(): BrowserWindow {
   const window = new BrowserWindow({
     width: 1100,
