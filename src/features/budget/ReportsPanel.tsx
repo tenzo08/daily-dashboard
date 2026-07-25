@@ -56,11 +56,23 @@ function monthStartEnd(monthsAgo: number): { start: string; end: string } {
   return { start, end }
 }
 
+interface SpendInsight {
+  name: string
+  thisMonth: number
+  lastMonth: number
+  pctChange: number
+}
+
+const INSIGHT_THRESHOLD_PCT = 15
+const INSIGHT_MIN_AMOUNT = 200 // ignore tiny categories — a ₱50→₱120 swing isn't news
+const INSIGHT_LIMIT = 3
+
 export function ReportsPanel({ refreshKey }: ReportsPanelProps): JSX.Element {
   const theme = useThemeValue()
   const chrome = CHART_CHROME[theme]
   const [byCategory, setByCategory] = useState<{ name: string; amount: number; color: string }[]>([])
   const [trend, setTrend] = useState<{ month: string; amount: number }[]>([])
+  const [insights, setInsights] = useState<SpendInsight[]>([])
 
   const refresh = useCallback(async () => {
     const categories = await api.categories.list()
@@ -81,6 +93,31 @@ export function ReportsPanel({ refreshKey }: ReportsPanelProps): JSX.Element {
           color: CATEGORICAL_COLORS[index % CATEGORICAL_COLORS.length]
         }))
         .filter((row) => row.amount > 0)
+    )
+
+    const { start: lastMonthStart, end: lastMonthEnd } = monthStartEnd(1)
+    const lastMonthTxns = await api.transactions.list({ from: lastMonthStart, to: lastMonthEnd })
+    const lastMonthSpendByCategory = new Map<number, number>()
+    for (const txn of lastMonthTxns) {
+      if (txn.type !== 'expense' || txn.categoryId === null) continue
+      lastMonthSpendByCategory.set(txn.categoryId, (lastMonthSpendByCategory.get(txn.categoryId) ?? 0) + txn.amount)
+    }
+    setInsights(
+      expenseCategories
+        .map((category) => {
+          const thisMonthAmount = spendByCategory.get(category.id) ?? 0
+          const lastMonthAmount = lastMonthSpendByCategory.get(category.id) ?? 0
+          const pctChange = lastMonthAmount > 0 ? ((thisMonthAmount - lastMonthAmount) / lastMonthAmount) * 100 : 0
+          return { name: category.name, thisMonth: thisMonthAmount, lastMonth: lastMonthAmount, pctChange }
+        })
+        .filter(
+          (row) =>
+            row.lastMonth > 0 &&
+            Math.abs(row.pctChange) >= INSIGHT_THRESHOLD_PCT &&
+            Math.max(row.thisMonth, row.lastMonth) >= INSIGHT_MIN_AMOUNT
+        )
+        .sort((a, b) => Math.abs(b.pctChange) - Math.abs(a.pctChange))
+        .slice(0, INSIGHT_LIMIT)
     )
 
     const rangeStart = monthStartEnd(5).start
@@ -105,6 +142,30 @@ export function ReportsPanel({ refreshKey }: ReportsPanelProps): JSX.Element {
 
   return (
     <div className="flex-1 overflow-auto p-4">
+      {insights.length > 0 && (
+        <div className="mb-6 space-y-1.5">
+          <h2 className="mb-1 text-sm font-medium text-graphite-dim">Insights</h2>
+          {insights.map((insight) => {
+            const up = insight.pctChange > 0
+            return (
+              <div
+                key={insight.name}
+                className={`rounded-card border px-3.5 py-2 text-sm text-graphite ${
+                  up ? 'border-danger/30 bg-danger-tint' : 'border-success/30 bg-success-tint'
+                }`}
+              >
+                <strong className="font-medium">{insight.name}</strong> spend is {up ? 'up' : 'down'}{' '}
+                <span className="font-mono tabular-nums">{Math.abs(Math.round(insight.pctChange))}%</span> vs last
+                month{' '}
+                <span className="font-mono text-xs tabular-nums text-graphite-dim">
+                  ({insight.lastMonth.toLocaleString()} → {insight.thisMonth.toLocaleString()})
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
       <h2 className="mb-3 text-sm font-medium text-graphite-dim">Spend by category (this month)</h2>
       <div className="mb-8 h-64 rounded-card border border-line bg-surface p-3">
         {byCategory.length === 0 ? (
