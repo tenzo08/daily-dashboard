@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '@/lib/api'
+import { NOTE_TEMPLATES } from '@/lib/noteTemplates'
 import type { NoteFolder, NoteSummary, Tag } from '../../../electron/db/types'
 import { FolderTree } from './FolderTree'
 import { NoteList } from './NoteList'
@@ -44,8 +45,13 @@ export function NotesScreen({ initialNoteId, onOpenTask }: NotesScreenProps): JS
     if (initialNoteId !== undefined) setSelectedNoteId(initialNoteId)
   }, [initialNoteId])
 
-  async function handleCreateNote(): Promise<void> {
-    const note = await api.notes.createNote({ title: 'Untitled', folderId: selectedFolderId })
+  async function handleCreateNote(templateKey: string): Promise<void> {
+    const template = NOTE_TEMPLATES.find((t) => t.key === templateKey) ?? NOTE_TEMPLATES[0]
+    const note = await api.notes.createNote({
+      title: template.title,
+      bodyMd: template.bodyMd,
+      folderId: selectedFolderId
+    })
     await refreshNotes()
     setSelectedNoteId(note.id)
   }
