@@ -8,7 +8,9 @@ Built with Electron, React, TypeScript, and SQLite (`better-sqlite3`).
 
 All 13 build phases are complete: project scaffold, the SQLite data layer, the IPC/security skeleton, PIN lock with backoff and a forgot-PIN wipe, the tray/window lifecycle, notes, schedule (recurring events, calendar view), the budget tracker (accounts, transactions, category budgets, reports), a background reminder loop with Windows toast notifications, the Today dashboard, Windows Task Scheduler self-registration for the daily auto-launch, a settings screen (launch time, PIN change), an NSIS Windows installer, and a final QA pass against every US-1–US-8 acceptance criterion in `REQUIREMENTS.md`. See `claudedocs/workflow_daily-dashboard.md` for the full phase breakdown.
 
-Backlog (deliberately deferred, not required for MVP — see `ARCHITECTURE.md` §8/§9): PIN recovery flow, export/backup UI, multi-currency, DB-at-rest encryption, auto-update.
+Since then, the following shipped beyond the original MVP scope (see `REQUIREMENTS.md` §2.6–2.10 and `ARCHITECTURE.md` §4/§6): a full password vault (encrypted credential storage with a weak/reused/old password health check), a task list (with note/schedule links and recurrence), an activity log with configurable retention, JSON export/restore and a transaction-ledger CSV export, note templates and note delete, and system tray quick-actions ("New Task"/"New Note").
+
+Backlog (deliberately deferred — see `ARCHITECTURE.md` §9): multi-currency, DB-at-rest encryption for non-vault data, auto-update.
 
 ## Getting started
 
@@ -31,6 +33,7 @@ npm run dev   # launches the app with hot reload
 | `npm run lint` | ESLint over the whole project |
 | `npm run db:harness` | Standalone check of every SQLite repository against a temp DB file |
 | `npm run auth:harness` | Standalone check of the PIN hashing/backoff logic against a temp DB file |
+| `npm run db:seed` | Dev-only: fills the dev database (`%APPDATA%/daily-dashboard-dev/data.db`) with sample data for every screen |
 
 The two harness scripts run through Electron's own Node runtime (`ELECTRON_RUN_AS_NODE=1 electron ...`, via `cross-env`) rather than plain `node`, since `better-sqlite3` is kept rebuilt against Electron's ABI, not the system Node's.
 
@@ -48,4 +51,6 @@ src/                # renderer (React): features/, lib/, types/
 resources/          # icons and other packaged assets
 ```
 
-Data lives in SQLite at `%APPDATA%/daily-dashboard/data.db` — local only, no cloud sync.
+Data lives in SQLite, local only, no cloud sync. Dev (`npm run dev`) and the packaged/installed app deliberately use separate files so dev-time sample data never ships to the built `.exe`:
+- Dev: `%APPDATA%/daily-dashboard-dev/data.db`
+- Packaged: `%APPDATA%/daily-dashboard/data.db`
