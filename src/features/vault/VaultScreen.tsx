@@ -55,13 +55,7 @@ function CredentialRow({
           {credential.folder ? ` · ${credential.folder}` : ''}
         </div>
       </button>
-      <code
-        className={`shrink-0 font-mono text-xs text-graphite-dim ${
-          revealed !== null
-            ? 'w-56 overflow-x-auto whitespace-nowrap'
-            : 'w-32 truncate'
-        }`}
-      >
+      <code className="w-56 shrink-0 overflow-x-auto whitespace-nowrap text-left font-mono text-xs text-graphite-dim">
         {revealing ? 'Decrypting…' : (revealed ?? '••••••••••••')}
       </code>
       <div className="flex shrink-0 gap-1">

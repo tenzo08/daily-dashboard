@@ -27,7 +27,7 @@ export function ActivityLogScreen(): JSX.Element {
       <h1 className="mb-1 text-lg font-semibold text-graphite">Activity Log</h1>
       <p className="mb-4 text-xs text-graphite-dim">A local, append-only record of what&apos;s changed — nothing leaves this machine.</p>
 
-      <Card className="max-w-2xl p-0">
+      <Card className="p-0">
         {entries.map((entry) => (
           <div key={entry.id} className="flex items-center justify-between gap-3 border-b border-line px-4 py-2.5 last:border-b-0">
             <span className="text-sm text-graphite">{entry.message}</span>

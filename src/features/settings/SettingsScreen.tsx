@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { api } from '@/lib/api'
+import { Card } from '@/components/ui/Card'
 
 type SaveState = 'idle' | 'saving' | 'saved'
 
@@ -126,146 +127,152 @@ export function SettingsScreen(): JSX.Element {
   }
 
   return (
-    <div className="max-w-md flex-1 space-y-8 overflow-auto p-6">
+    <div className="max-w-4xl flex-1 space-y-4 overflow-auto p-6">
       <h1 className="text-lg font-semibold text-graphite">Settings</h1>
 
-      <section>
-        <h2 className="mb-2 text-sm font-medium text-graphite-dim">Daily launch time</h2>
-        <div className="flex items-center gap-2">
-          <input
-            type="time"
-            value={launchTime}
-            onChange={(event) => handleLaunchTimeChange(event.target.value)}
-            className="rounded-control border border-line bg-surface px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
-          />
-          <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
-            {launchTimeSaveState === 'saving' ? 'Saving…' : launchTimeSaveState === 'saved' ? 'Saved' : ''}
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-graphite-dim">The app auto-launches around this time every day.</p>
-      </section>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <Card title="Daily launch time">
+            <div className="flex items-center gap-2">
+              <input
+                type="time"
+                value={launchTime}
+                onChange={(event) => handleLaunchTimeChange(event.target.value)}
+                className="rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
+              />
+              <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
+                {launchTimeSaveState === 'saving' ? 'Saving…' : launchTimeSaveState === 'saved' ? 'Saved' : ''}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-graphite-dim">The app auto-launches around this time every day.</p>
+          </Card>
 
-      <section>
-        <h2 className="mb-2 text-sm font-medium text-graphite-dim">Auto-lock</h2>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            min={0}
-            value={idleLockMinutes}
-            onChange={(event) => handleIdleLockChange(event.target.value)}
-            className="w-20 rounded-control border border-line bg-surface px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
-          />
-          <span className="text-xs text-graphite-dim">minutes idle</span>
-          <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
-            {idleLockSaveState === 'saving' ? 'Saving…' : idleLockSaveState === 'saved' ? 'Saved' : ''}
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-graphite-dim">Locks the vault automatically after this much inactivity. 0 disables it.</p>
-      </section>
+          <Card title="Auto-lock">
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={0}
+                value={idleLockMinutes}
+                onChange={(event) => handleIdleLockChange(event.target.value)}
+                className="w-20 rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
+              />
+              <span className="text-xs text-graphite-dim">minutes idle</span>
+              <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
+                {idleLockSaveState === 'saving' ? 'Saving…' : idleLockSaveState === 'saved' ? 'Saved' : ''}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-graphite-dim">
+              Locks the vault automatically after this much inactivity. 0 disables it.
+            </p>
+          </Card>
 
-      <section>
-        <h2 className="mb-2 text-sm font-medium text-graphite-dim">Activity log</h2>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            min={0}
-            value={retentionDays}
-            onChange={(event) => handleRetentionChange(event.target.value)}
-            className="w-20 rounded-control border border-line bg-surface px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
-          />
-          <span className="text-xs text-graphite-dim">days of history to keep</span>
-          <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
-            {retentionSaveState === 'saving' ? 'Saving…' : retentionSaveState === 'saved' ? 'Saved' : ''}
-          </span>
-        </div>
-        <p className="mt-1 text-xs text-graphite-dim">Older entries are pruned automatically. 0 keeps everything.</p>
-      </section>
-
-      <section>
-        <h2 className="mb-2 text-sm font-medium text-graphite-dim">Export / Backup</h2>
-        <p className="mb-2 text-xs text-graphite-dim">
-          Exports everything — notes, tasks, schedule, budget, and vault credentials — to a JSON file you choose.{' '}
-          <strong className="font-medium text-danger">
-            Vault passwords are written in plain text so the file can actually restore your vault
-          </strong>{' '}
-          — store it somewhere as safe as the passwords themselves. Import only works into a completely empty vault
-          (e.g. right after &quot;Forgot PIN&quot;).
-        </p>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={backupBusy}
-            className="rounded-control bg-brass px-3 py-1.5 text-sm font-semibold text-graphite hover:bg-brass-bright disabled:opacity-40"
-          >
-            Export data…
-          </button>
-          <button
-            type="button"
-            onClick={handleImport}
-            disabled={backupBusy}
-            className="rounded-control border border-line px-3 py-1.5 text-sm text-graphite-dim hover:bg-line/40 disabled:opacity-40"
-          >
-            Import data…
-          </button>
+          <Card title="Activity log">
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={0}
+                value={retentionDays}
+                onChange={(event) => handleRetentionChange(event.target.value)}
+                className="w-20 rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
+              />
+              <span className="text-xs text-graphite-dim">days of history to keep</span>
+              <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
+                {retentionSaveState === 'saving' ? 'Saving…' : retentionSaveState === 'saved' ? 'Saved' : ''}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-graphite-dim">Older entries are pruned automatically. 0 keeps everything.</p>
+          </Card>
         </div>
 
-        <div className="mt-4 border-t border-line pt-4">
-          <p className="mb-2 text-xs text-graphite-dim">
-            Or export just the transaction ledger as a plain CSV — for dropping into Excel/Sheets, not for restoring.
-          </p>
-          <button
-            type="button"
-            onClick={handleExportTransactionsCsv}
-            disabled={backupBusy}
-            className="rounded-control border border-line px-3 py-1.5 text-sm text-graphite-dim hover:bg-line/40 disabled:opacity-40"
-          >
-            Export transactions (CSV)…
-          </button>
+        <Card title="Change PIN">
+          <form onSubmit={handlePinChange} className="space-y-2">
+            <input
+              type="password"
+              inputMode="numeric"
+              placeholder="Current PIN"
+              value={currentPin}
+              onChange={(event) => setCurrentPin(event.target.value)}
+              className="w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
+            />
+            <input
+              type="password"
+              inputMode="numeric"
+              placeholder="New PIN"
+              value={newPin}
+              onChange={(event) => setNewPin(event.target.value)}
+              className="w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
+            />
+            <input
+              type="password"
+              inputMode="numeric"
+              placeholder="Confirm new PIN"
+              value={confirmNewPin}
+              onChange={(event) => setConfirmNewPin(event.target.value)}
+              className="w-full rounded-control border border-line bg-paper px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
+            />
+            {pinError && <p className="text-xs text-danger">{pinError}</p>}
+            {pinChangeState === 'saved' && <p className="text-xs text-success">PIN updated.</p>}
+            <button
+              type="submit"
+              disabled={pinChangeState === 'saving' || !currentPin || !newPin || !confirmNewPin}
+              className="rounded-control bg-brass px-3 py-1.5 text-sm font-semibold text-graphite hover:bg-brass-bright disabled:opacity-40"
+            >
+              Update PIN
+            </button>
+          </form>
+        </Card>
+      </div>
+
+      <Card title="Export / Backup">
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <p className="mb-2 text-xs text-graphite-dim">
+              Exports everything — notes, tasks, schedule, budget, and vault credentials — to a JSON file you choose.{' '}
+              <strong className="font-medium text-danger">
+                Vault passwords are written in plain text so the file can actually restore your vault
+              </strong>{' '}
+              — store it somewhere as safe as the passwords themselves. Import only works into a completely empty
+              vault (e.g. right after &quot;Forgot PIN&quot;).
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleExport}
+                disabled={backupBusy}
+                className="rounded-control bg-brass px-3 py-1.5 text-sm font-semibold text-graphite hover:bg-brass-bright disabled:opacity-40"
+              >
+                Export data…
+              </button>
+              <button
+                type="button"
+                onClick={handleImport}
+                disabled={backupBusy}
+                className="rounded-control border border-line px-3 py-1.5 text-sm text-graphite-dim hover:bg-line/40 disabled:opacity-40"
+              >
+                Import data…
+              </button>
+            </div>
+          </div>
+
+          <div className="border-l border-line pl-6">
+            <p className="mb-2 text-xs text-graphite-dim">
+              Or export just the transaction ledger as a plain CSV — for dropping into Excel/Sheets, not for
+              restoring.
+            </p>
+            <button
+              type="button"
+              onClick={handleExportTransactionsCsv}
+              disabled={backupBusy}
+              className="rounded-control border border-line px-3 py-1.5 text-sm text-graphite-dim hover:bg-line/40 disabled:opacity-40"
+            >
+              Export transactions (CSV)…
+            </button>
+          </div>
         </div>
 
-        {backupMessage && <p className="mt-2 text-xs text-success">{backupMessage}</p>}
-        {backupError && <p className="mt-2 text-xs text-danger">{backupError}</p>}
-      </section>
-
-      <section>
-        <h2 className="mb-2 text-sm font-medium text-graphite-dim">Change PIN</h2>
-        <form onSubmit={handlePinChange} className="space-y-2">
-          <input
-            type="password"
-            inputMode="numeric"
-            placeholder="Current PIN"
-            value={currentPin}
-            onChange={(event) => setCurrentPin(event.target.value)}
-            className="w-full rounded-control border border-line bg-surface px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
-          />
-          <input
-            type="password"
-            inputMode="numeric"
-            placeholder="New PIN"
-            value={newPin}
-            onChange={(event) => setNewPin(event.target.value)}
-            className="w-full rounded-control border border-line bg-surface px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
-          />
-          <input
-            type="password"
-            inputMode="numeric"
-            placeholder="Confirm new PIN"
-            value={confirmNewPin}
-            onChange={(event) => setConfirmNewPin(event.target.value)}
-            className="w-full rounded-control border border-line bg-surface px-2 py-1 text-sm text-graphite focus:border-brass focus:outline-none"
-          />
-          {pinError && <p className="text-xs text-danger">{pinError}</p>}
-          {pinChangeState === 'saved' && <p className="text-xs text-success">PIN updated.</p>}
-          <button
-            type="submit"
-            disabled={pinChangeState === 'saving' || !currentPin || !newPin || !confirmNewPin}
-            className="rounded-control bg-brass px-3 py-1.5 text-sm font-semibold text-graphite hover:bg-brass-bright disabled:opacity-40"
-          >
-            Update PIN
-          </button>
-        </form>
-      </section>
+        {backupMessage && <p className="mt-3 text-xs text-success">{backupMessage}</p>}
+        {backupError && <p className="mt-3 text-xs text-danger">{backupError}</p>}
+      </Card>
     </div>
   )
 }
