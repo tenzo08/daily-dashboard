@@ -55,13 +55,16 @@ export function LockScreen({ onUnlock }: LockScreenProps): JSX.Element {
 
   return (
     <div className="flex h-screen w-screen flex-col bg-void text-ink-text">
-      {/* Centered in the space above the status footer, not the raw
-          viewport — otherwise the fixed footer visually pushes the card
-          off-center. */}
+      {/* Logo is pinned near the top, independent of the centered group
+          below it — only the text/field/button block is vertically
+          centered (in the space above the status footer, not the raw
+          viewport, so the fixed footer doesn't visually pull it off-center). */}
+      <div className="flex justify-center pt-12">
+        <Icon svg={heroGraphic} className="h-16 w-16" />
+      </div>
+
       <div className="flex flex-1 items-center justify-center px-6">
         <form onSubmit={handleSubmit} className="flex w-72 flex-col items-center gap-4 text-center">
-          <Icon svg={heroGraphic} className="h-20 w-20" />
-
           <div className="space-y-1">
             <h1 className="text-lg font-bold tracking-tight text-ink-text">Daily Dashboard</h1>
             <p className="text-sm text-ink-text-dim">Coded for privacy.</p>

@@ -72,7 +72,7 @@ function TaskRow({
       )}
 
       <StatusPill tone={PRIORITY_TONE[task.priority]}>{task.priority}</StatusPill>
-      <span className="w-16 shrink-0 text-right font-mono text-[11px] tabular-nums text-graphite-dim">
+      <span className="w-24 shrink-0 whitespace-nowrap text-right font-mono text-[11px] tabular-nums text-graphite-dim">
         {task.dueDate ?? '—'}
       </span>
     </div>

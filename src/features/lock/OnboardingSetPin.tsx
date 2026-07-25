@@ -28,46 +28,50 @@ export function OnboardingSetPin({ onDone }: OnboardingSetPinProps): JSX.Element
   }
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center bg-void px-6 text-ink-text">
-      <form onSubmit={handleSubmit} className="flex w-72 flex-col items-center gap-4 text-center">
-        <Icon svg={heroGraphic} className="h-20 w-20" />
+    <div className="flex h-screen w-screen flex-col bg-void text-ink-text">
+      <div className="flex justify-center pt-12">
+        <Icon svg={heroGraphic} className="h-16 w-16" />
+      </div>
 
-        <div className="space-y-1">
-          <h1 className="text-lg font-bold tracking-tight text-ink-text">Daily Dashboard</h1>
-          <p className="text-xs text-ink-text-dim">
-            Set a PIN to protect your vault, notes, schedule, and budget on this PC.
+      <div className="flex flex-1 items-center justify-center px-6">
+        <form onSubmit={handleSubmit} className="flex w-72 flex-col items-center gap-4 text-center">
+          <div className="space-y-1">
+            <h1 className="text-lg font-bold tracking-tight text-ink-text">Daily Dashboard</h1>
+            <p className="text-xs text-ink-text-dim">
+              Set a PIN to protect your vault, notes, schedule, and budget on this PC.
+            </p>
+          </div>
+
+          <div className="w-full space-y-2">
+            <PasswordField
+              value={pin}
+              onChange={(event) => setPin(event.target.value)}
+              placeholder="New PIN"
+              inputMode="numeric"
+              autoFocus
+            />
+            <PasswordField
+              value={confirmPin}
+              onChange={(event) => setConfirmPin(event.target.value)}
+              placeholder="Confirm PIN"
+              inputMode="numeric"
+            />
+            {error && <p className="text-xs text-danger-bright">{error}</p>}
+          </div>
+
+          <button
+            type="submit"
+            disabled={pin.length === 0 || confirmPin.length === 0}
+            className="w-full rounded-control bg-brass py-2.5 text-sm font-semibold text-void hover:bg-brass-bright disabled:opacity-40"
+          >
+            Set PIN
+          </button>
+
+          <p className="font-mono text-[10px] tracking-wider text-ink-text-dim">
+            AES-256 · Argon2id · Local-first · v0.1.0
           </p>
-        </div>
-
-        <div className="w-full space-y-2">
-          <PasswordField
-            value={pin}
-            onChange={(event) => setPin(event.target.value)}
-            placeholder="New PIN"
-            inputMode="numeric"
-            autoFocus
-          />
-          <PasswordField
-            value={confirmPin}
-            onChange={(event) => setConfirmPin(event.target.value)}
-            placeholder="Confirm PIN"
-            inputMode="numeric"
-          />
-          {error && <p className="text-xs text-danger-bright">{error}</p>}
-        </div>
-
-        <button
-          type="submit"
-          disabled={pin.length === 0 || confirmPin.length === 0}
-          className="w-full rounded-control bg-brass py-2.5 text-sm font-semibold text-void hover:bg-brass-bright disabled:opacity-40"
-        >
-          Set PIN
-        </button>
-
-        <p className="font-mono text-[10px] tracking-wider text-ink-text-dim">
-          AES-256 · Argon2id · Local-first · v0.1.0
-        </p>
-      </form>
+        </form>
+      </div>
     </div>
   )
 }
