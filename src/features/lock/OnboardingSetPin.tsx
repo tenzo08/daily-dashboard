@@ -28,29 +28,33 @@ export function OnboardingSetPin({ onDone }: OnboardingSetPinProps): JSX.Element
   }
 
   return (
-    <div className="flex h-screen w-screen flex-col items-center justify-center bg-void text-ink-text">
-      <form onSubmit={handleSubmit} className="w-72 space-y-3 text-center">
-        <Icon svg={heroGraphic} className="mx-auto mb-2 h-28 w-28" />
-        <h1 className="text-lg font-bold tracking-tight text-ink-text">Daily Dashboard</h1>
-        <p className="text-xs text-ink-text-dim">
-          Set a PIN to protect your vault, notes, schedule, and budget on this PC.
-        </p>
+    <div className="flex h-screen w-screen items-center justify-center bg-void px-6 text-ink-text">
+      <form onSubmit={handleSubmit} className="flex w-72 flex-col items-center gap-4 text-center">
+        <Icon svg={heroGraphic} className="h-20 w-20" />
 
-        <PasswordField
-          value={pin}
-          onChange={(event) => setPin(event.target.value)}
-          placeholder="New PIN"
-          inputMode="numeric"
-          autoFocus
-        />
-        <PasswordField
-          value={confirmPin}
-          onChange={(event) => setConfirmPin(event.target.value)}
-          placeholder="Confirm PIN"
-          inputMode="numeric"
-        />
+        <div className="space-y-1">
+          <h1 className="text-lg font-bold tracking-tight text-ink-text">Daily Dashboard</h1>
+          <p className="text-xs text-ink-text-dim">
+            Set a PIN to protect your vault, notes, schedule, and budget on this PC.
+          </p>
+        </div>
 
-        {error && <p className="text-xs text-danger-bright">{error}</p>}
+        <div className="w-full space-y-2">
+          <PasswordField
+            value={pin}
+            onChange={(event) => setPin(event.target.value)}
+            placeholder="New PIN"
+            inputMode="numeric"
+            autoFocus
+          />
+          <PasswordField
+            value={confirmPin}
+            onChange={(event) => setConfirmPin(event.target.value)}
+            placeholder="Confirm PIN"
+            inputMode="numeric"
+          />
+          {error && <p className="text-xs text-danger-bright">{error}</p>}
+        </div>
 
         <button
           type="submit"
@@ -60,7 +64,7 @@ export function OnboardingSetPin({ onDone }: OnboardingSetPinProps): JSX.Element
           Set PIN
         </button>
 
-        <p className="pt-2 font-mono text-[10px] tracking-wider text-ink-text-dim">
+        <p className="font-mono text-[10px] tracking-wider text-ink-text-dim">
           AES-256 · Argon2id · Local-first · v0.1.0
         </p>
       </form>

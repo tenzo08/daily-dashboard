@@ -57,7 +57,7 @@ export function TaskForm({ initial, onSaved, onCancel, onDelete }: TaskFormProps
     <div className="fixed inset-0 flex items-center justify-center bg-void/40">
       <form
         onSubmit={handleSubmit}
-        className="max-h-[90vh] w-96 overflow-auto rounded-panel border border-line bg-surface p-5"
+        className="scrollbar-none max-h-[90vh] w-96 overflow-auto rounded-panel border border-line bg-surface p-5"
       >
         <h2 className="mb-4 text-sm font-semibold text-graphite">{initial ? 'Edit task' : 'New task'}</h2>
 

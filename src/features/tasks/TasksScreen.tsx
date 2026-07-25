@@ -4,7 +4,7 @@ import { StatusPill, type StatusPillTone } from '@/components/ui/StatusPill'
 import type { NoteSummary, ScheduleItem, Task, TaskPriority, TaskStatus } from '../../../electron/db/types'
 import { TaskForm } from './TaskForm'
 
-const COLUMNS: { status: TaskStatus; label: string }[] = [
+const SECTIONS: { status: TaskStatus; label: string }[] = [
   { status: 'todo', label: 'To Do' },
   { status: 'in_progress', label: 'In Progress' },
   { status: 'done', label: 'Done' }
@@ -13,7 +13,7 @@ const COLUMNS: { status: TaskStatus; label: string }[] = [
 const PRIORITY_TONE: Record<TaskPriority, StatusPillTone> = { high: 'danger', medium: 'warning', low: 'muted' }
 const NEXT_STATUS: Record<TaskStatus, TaskStatus> = { todo: 'in_progress', in_progress: 'done', done: 'todo' }
 
-function TaskCard({
+function TaskRow({
   task,
   linkedNoteTitle,
   linkedScheduleTitle,
@@ -31,22 +31,30 @@ function TaskCard({
   onOpenSchedule: () => void
 }): JSX.Element {
   return (
-    <div className="rounded-card border border-line bg-surface p-3">
-      <div className="mb-1.5 flex items-start justify-between gap-2">
-        <button type="button" onClick={onEdit} className="text-left text-sm font-medium text-graphite hover:underline">
+    <div className="flex items-center gap-3 rounded-card border border-line bg-surface px-4 py-2.5">
+      <button
+        type="button"
+        onClick={onAdvance}
+        aria-label={task.status === 'done' ? 'Reopen' : task.status === 'todo' ? 'Start' : 'Complete'}
+        className={`h-4 w-4 shrink-0 rounded-full border-2 ${
+          task.status === 'done' ? 'border-success bg-success' : 'border-line hover:border-brass'
+        }`}
+      />
+
+      <button type="button" onClick={onEdit} className="min-w-0 flex-1 text-left">
+        <span className={`block truncate text-sm font-medium ${task.status === 'done' ? 'text-graphite-dim line-through' : 'text-graphite'}`}>
           {task.title}
-        </button>
-        <StatusPill tone={PRIORITY_TONE[task.priority]}>{task.priority}</StatusPill>
-      </div>
-      {task.description && <p className="mb-2 text-xs text-graphite-dim">{task.description}</p>}
+        </span>
+        {task.description && <span className="block truncate text-xs text-graphite-dim">{task.description}</span>}
+      </button>
 
       {(linkedNoteTitle || linkedScheduleTitle) && (
-        <div className="mb-2 flex flex-wrap gap-1.5">
+        <div className="flex shrink-0 gap-1.5">
           {linkedNoteTitle && (
             <button
               type="button"
               onClick={onOpenNote}
-              className="truncate rounded-pill bg-muted-tint px-2 py-0.5 text-[11px] text-muted hover:text-graphite"
+              className="max-w-32 truncate rounded-pill bg-muted-tint px-2 py-0.5 text-[11px] text-muted hover:text-graphite"
             >
               📄 {linkedNoteTitle}
             </button>
@@ -55,7 +63,7 @@ function TaskCard({
             <button
               type="button"
               onClick={onOpenSchedule}
-              className="truncate rounded-pill bg-muted-tint px-2 py-0.5 text-[11px] text-muted hover:text-graphite"
+              className="max-w-32 truncate rounded-pill bg-muted-tint px-2 py-0.5 text-[11px] text-muted hover:text-graphite"
             >
               📅 {linkedScheduleTitle}
             </button>
@@ -63,16 +71,10 @@ function TaskCard({
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <span className="font-mono text-[11px] tabular-nums text-graphite-dim">{task.dueDate ?? '—'}</span>
-        <button
-          type="button"
-          onClick={onAdvance}
-          className="rounded-control border border-line px-2 py-1 text-[11px] text-graphite-dim hover:bg-line/40"
-        >
-          {task.status === 'done' ? 'Reopen' : task.status === 'todo' ? 'Start' : 'Complete'}
-        </button>
-      </div>
+      <StatusPill tone={PRIORITY_TONE[task.priority]}>{task.priority}</StatusPill>
+      <span className="w-16 shrink-0 text-right font-mono text-[11px] tabular-nums text-graphite-dim">
+        {task.dueDate ?? '—'}
+      </span>
     </div>
   )
 }
@@ -158,17 +160,17 @@ export function TasksScreen({
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        {COLUMNS.map((column) => {
-          const columnTasks = tasks.filter((t) => t.status === column.status)
+      <div className="space-y-6">
+        {SECTIONS.map((section) => {
+          const rows = tasks.filter((t) => t.status === section.status)
           return (
-            <div key={column.status}>
+            <section key={section.status}>
               <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-graphite-dim">
-                {column.label} <span className="font-mono">{columnTasks.length}</span>
+                {section.label} <span className="font-mono">{rows.length}</span>
               </h2>
-              <div className="space-y-2">
-                {columnTasks.map((task) => (
-                  <TaskCard
+              <div className="space-y-1.5">
+                {rows.map((task) => (
+                  <TaskRow
                     key={task.id}
                     task={task}
                     linkedNoteTitle={task.linkedNoteId !== null ? noteTitleById.get(task.linkedNoteId) : undefined}
@@ -184,9 +186,9 @@ export function TasksScreen({
                     onOpenSchedule={onOpenSchedule}
                   />
                 ))}
-                {columnTasks.length === 0 && <p className="text-xs text-graphite-dim">Nothing here.</p>}
+                {rows.length === 0 && <p className="px-1 text-xs text-graphite-dim">Nothing here.</p>}
               </div>
-            </div>
+            </section>
           )
         })}
       </div>

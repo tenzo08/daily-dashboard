@@ -136,7 +136,7 @@ export function ScheduleItemForm({
     <div className="fixed inset-0 flex items-center justify-center bg-void/40">
       <form
         onSubmit={handleSubmit}
-        className="max-h-[90vh] w-96 overflow-auto rounded-panel border border-line bg-surface p-4"
+        className="scrollbar-none max-h-[90vh] w-96 overflow-auto rounded-panel border border-line bg-surface p-4"
       >
         <h2 className="mb-3 text-sm font-semibold text-graphite">{itemId ? 'Edit item' : 'New item'}</h2>
 

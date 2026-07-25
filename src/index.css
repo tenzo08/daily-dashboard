@@ -81,17 +81,34 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Modal forms scroll when content overflows max-h, but the browser
+   scrollbar reads as a UI-chrome intrusion on a small floating panel —
+   hide it while keeping the scroll behavior itself. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Dashboard-side light/dark toggle (ThemeToggle component, src/lib/theme.ts).
    Only the dashboard's own tokens are overridden here — void/ink/ink-* stay
    untouched, so the lock screen's fixed dark "vault" mode never changes
-   regardless of this toggle. Brass stays the same in both, it already
-   reads fine on light and dark surfaces. */
+   regardless of this toggle. Brass itself stays the same in both, it
+   already reads fine on light and dark surfaces — but brass-tint doesn't:
+   it's a pale cream meant to sit under dark (light-mode) graphite text.
+   Left un-overridden, active/selected states (bg-brass-tint + text-graphite)
+   turned into light text on a light background once graphite flips light
+   for dark mode — this fixes that. */
 :root[data-theme='dark'] {
   --color-paper: #121218;
   --color-surface: #1a1a22;
   --color-line: rgba(255, 255, 255, 0.1);
   --color-graphite: #edece8;
   --color-graphite-dim: #9997a3;
+
+  --color-brass-tint: rgba(217, 169, 78, 0.16);
 
   --color-success: var(--color-success-bright);
   --color-success-tint: rgba(127, 199, 158, 0.14);

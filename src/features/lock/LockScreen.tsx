@@ -54,68 +54,76 @@ export function LockScreen({ onUnlock }: LockScreenProps): JSX.Element {
   }
 
   return (
-    <div className="flex h-screen w-screen flex-col items-center justify-center bg-void text-ink-text">
-      <form onSubmit={handleSubmit} className="w-72 text-center">
-        <Icon svg={heroGraphic} className="mx-auto mb-5 h-32 w-32" />
+    <div className="flex h-screen w-screen flex-col bg-void text-ink-text">
+      {/* Centered in the space above the status footer, not the raw
+          viewport — otherwise the fixed footer visually pushes the card
+          off-center. */}
+      <div className="flex flex-1 items-center justify-center px-6">
+        <form onSubmit={handleSubmit} className="flex w-72 flex-col items-center gap-4 text-center">
+          <Icon svg={heroGraphic} className="h-20 w-20" />
 
-        <h1 className="mb-1 text-lg font-bold tracking-tight text-ink-text">Daily Dashboard</h1>
-        <p className="mb-1 text-sm text-ink-text-dim">Coded for privacy.</p>
-        <p className="mb-6 text-xs leading-relaxed text-ink-text-dim">
-          Your passwords and personal notes stay encrypted, private, and fully under your control — always.
-        </p>
-
-        <PasswordField
-          label="Master password"
-          inputMode="numeric"
-          autoFocus
-          disabled={isLockedOut}
-          value={pin}
-          onChange={(event) => setPin(event.target.value)}
-        />
-
-        {error && <p className="mt-2 text-xs text-danger-bright">{error}</p>}
-        {isLockedOut && (
-          <p className="mt-2 text-xs text-danger-bright">
-            Too many attempts. Try again in {Math.ceil((lockedUntil! - Date.now()) / 1000)}s.
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={isLockedOut || pin.length === 0}
-          className="mt-4 w-full rounded-control bg-brass py-2.5 text-sm font-semibold text-void hover:bg-brass-bright disabled:opacity-40"
-        >
-          Unlock Vault →
-        </button>
-
-        <p className="mt-5 font-mono text-[10px] tracking-wider text-ink-text-dim">
-          AES-256 · Argon2id · Local-first · v0.1.0
-        </p>
-
-        {!resetConfirm ? (
-          <button
-            type="button"
-            onClick={() => setResetConfirm(true)}
-            className="mt-4 font-mono text-[10px] uppercase tracking-wider text-ink-text-dim underline hover:text-ink-text"
-          >
-            Forgot PIN?
-          </button>
-        ) : (
-          <div className="mt-4 space-y-2 text-xs text-ink-text-dim">
-            <p>This deletes all local data (notes, schedule, budget, vault) and starts over. This cannot be undone.</p>
-            <div className="flex justify-center gap-3">
-              <button type="button" onClick={() => setResetConfirm(false)} className="underline">
-                Cancel
-              </button>
-              <button type="button" onClick={handleReset} className="text-danger-bright underline">
-                Reset and start over
-              </button>
-            </div>
+          <div className="space-y-1">
+            <h1 className="text-lg font-bold tracking-tight text-ink-text">Daily Dashboard</h1>
+            <p className="text-sm text-ink-text-dim">Coded for privacy.</p>
+            <p className="text-xs leading-relaxed text-ink-text-dim">
+              Your passwords and personal notes stay encrypted, private, and fully under your control — always.
+            </p>
           </div>
-        )}
-      </form>
 
-      <div className="fixed bottom-0 left-0 right-0 border-t border-ink-line px-4 py-2 text-center font-mono text-[10px] uppercase tracking-wider text-ink-text-dim">
+          <div className="w-full space-y-2">
+            <PasswordField
+              label="Master password"
+              inputMode="numeric"
+              autoFocus
+              disabled={isLockedOut}
+              value={pin}
+              onChange={(event) => setPin(event.target.value)}
+            />
+            {error && <p className="text-xs text-danger-bright">{error}</p>}
+            {isLockedOut && (
+              <p className="text-xs text-danger-bright">
+                Too many attempts. Try again in {Math.ceil((lockedUntil! - Date.now()) / 1000)}s.
+              </p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLockedOut || pin.length === 0}
+            className="w-full rounded-control bg-brass py-2.5 text-sm font-semibold text-void hover:bg-brass-bright disabled:opacity-40"
+          >
+            Unlock Vault →
+          </button>
+
+          <p className="font-mono text-[10px] tracking-wider text-ink-text-dim">
+            AES-256 · Argon2id · Local-first · v0.1.0
+          </p>
+
+          {!resetConfirm ? (
+            <button
+              type="button"
+              onClick={() => setResetConfirm(true)}
+              className="font-mono text-[10px] uppercase tracking-wider text-ink-text-dim underline hover:text-ink-text"
+            >
+              Forgot PIN?
+            </button>
+          ) : (
+            <div className="space-y-2 text-xs text-ink-text-dim">
+              <p>This deletes all local data (notes, schedule, budget, vault) and starts over. This cannot be undone.</p>
+              <div className="flex justify-center gap-3">
+                <button type="button" onClick={() => setResetConfirm(false)} className="underline">
+                  Cancel
+                </button>
+                <button type="button" onClick={handleReset} className="text-danger-bright underline">
+                  Reset and start over
+                </button>
+              </div>
+            </div>
+          )}
+        </form>
+      </div>
+
+      <div className="border-t border-ink-line px-4 py-2 text-center font-mono text-[10px] uppercase tracking-wider text-ink-text-dim">
         [ SYSTEM_STATUS: {isLockedOut ? 'LOCKED_OUT' : 'LOCKED'} ] root@daily-dashboard:/vault — NO CLOUD. NO
         BACKDOORS. NO COMPROMISE. HAND-CODED FOR PRIVACY.
       </div>
