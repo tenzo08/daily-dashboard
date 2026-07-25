@@ -131,7 +131,7 @@ if (!gotSingleInstanceLock) {
     activity.pruneOlderThan(retentionDays)
 
     const window = createWindow()
-    tray = createTray(window)
+    tray = createTray(window, db)
     // getWindow() closes over the outer `mainWindow`, not this snapshot,
     // so it stays correct if the window is ever recreated via 'activate'.
     startReminderLoop(db, () => mainWindow)

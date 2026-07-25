@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { api } from '@/lib/api'
 import { Icon } from '@/components/ui/Icon'
 import { SidebarNavItem } from '@/components/ui/SidebarNavItem'
@@ -67,6 +67,16 @@ type PendingSelection = { type: 'note' | 'task' | 'credential'; id: number } | n
 export function AppShell({ onLock }: AppShellProps): JSX.Element {
   const [route, setRoute] = useState<Route>('dashboard')
   const [pendingSelection, setPendingSelection] = useState<PendingSelection>(null)
+
+  // "New Task"/"New Note" from the tray menu creates the item in the main
+  // process, then tells the renderer to jump straight to editing it — same
+  // deep-link handoff the command palette uses.
+  useEffect(() => {
+    return api.tray.onQuickAction((action) => {
+      setRoute(action.type === 'task' ? 'tasks' : 'notes')
+      setPendingSelection({ type: action.type, id: action.id })
+    })
+  }, [])
 
   async function handleLock(): Promise<void> {
     await api.auth.lock()

@@ -176,4 +176,14 @@ export interface ApiContract {
     /** Plain ledger CSV — separate from the full JSON backup, not meant to round-trip. */
     exportTransactionsCsv: () => Promise<{ path: string | null }>
   }
+
+  tray: {
+    /** Fires when "New Task"/"New Note" is used from the tray menu. Returns an unsubscribe function. */
+    onQuickAction: (callback: (action: TrayQuickAction) => void) => () => void
+  }
+}
+
+export interface TrayQuickAction {
+  type: 'task' | 'note'
+  id: number
 }

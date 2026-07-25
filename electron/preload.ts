@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { ApiContract } from './ipc/contract'
+import type { ApiContract, TrayQuickAction } from './ipc/contract'
 
 const api: ApiContract = {
   auth: {
@@ -104,6 +104,14 @@ const api: ApiContract = {
     export: () => ipcRenderer.invoke('backup:export'),
     import: () => ipcRenderer.invoke('backup:import'),
     exportTransactionsCsv: () => ipcRenderer.invoke('backup:exportTransactionsCsv')
+  },
+
+  tray: {
+    onQuickAction: (callback) => {
+      const listener = (_event: Electron.IpcRendererEvent, action: TrayQuickAction): void => callback(action)
+      ipcRenderer.on('tray:quickAction', listener)
+      return () => ipcRenderer.removeListener('tray:quickAction', listener)
+    }
   }
 }
 
