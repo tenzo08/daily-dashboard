@@ -55,6 +55,21 @@ function insertRows(db: DB, table: string, rows: Record<string, unknown>[]): voi
   for (const row of rows) stmt.run(row)
 }
 
+function csvField(value: unknown): string {
+  const s = value === null || value === undefined ? '' : String(value)
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+}
+
+interface TransactionCsvRow {
+  occurred_on: string
+  type: string
+  account: string
+  category: string | null
+  transfer_to: string | null
+  amount: number
+  note: string | null
+}
+
 export function registerBackupHandlers(db: DB): void {
   const credentials = createCredentialsRepository(db)
 
@@ -177,5 +192,47 @@ export function registerBackupHandlers(db: DB): void {
     run()
 
     return { imported: true, path: filePath }
+  })
+
+  // Separate from the full JSON backup — a plain ledger for dropping into
+  // Excel/Sheets, not something meant to round-trip back into the app.
+  registerHandler('backup:exportTransactionsCsv', async () => {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      title: 'Export transactions as CSV',
+      defaultPath: `transactions-${new Date().toISOString().slice(0, 10)}.csv`,
+      filters: [{ name: 'CSV', extensions: ['csv'] }]
+    })
+    if (canceled || !filePath) return { path: null }
+
+    const rows = db
+      .prepare(
+        `SELECT
+           t.occurred_on,
+           t.type,
+           a.name AS account,
+           c.name AS category,
+           ta.name AS transfer_to,
+           t.amount,
+           t.note
+         FROM transactions t
+         JOIN accounts a ON a.id = t.account_id
+         LEFT JOIN categories c ON c.id = t.category_id
+         LEFT JOIN accounts ta ON ta.id = t.transfer_account_id
+         ORDER BY t.occurred_on DESC, t.id DESC`
+      )
+      .all() as TransactionCsvRow[]
+
+    const header = ['Date', 'Type', 'Account', 'Category', 'Transfer To', 'Amount', 'Note']
+    const lines = [header.join(',')]
+    for (const row of rows) {
+      lines.push(
+        [row.occurred_on, row.type, row.account, row.category, row.transfer_to, row.amount, row.note]
+          .map(csvField)
+          .join(',')
+      )
+    }
+
+    fs.writeFileSync(filePath, lines.join('\n'), 'utf-8')
+    return { path: filePath }
   })
 }

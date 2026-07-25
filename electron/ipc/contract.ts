@@ -173,5 +173,7 @@ export interface ApiContract {
     export: () => Promise<{ path: string | null }>
     /** Opens a native open dialog; only succeeds into a completely empty vault. */
     import: () => Promise<{ imported: boolean; path: string | null }>
+    /** Plain ledger CSV — separate from the full JSON backup, not meant to round-trip. */
+    exportTransactionsCsv: () => Promise<{ path: string | null }>
   }
 }

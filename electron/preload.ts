@@ -102,7 +102,8 @@ const api: ApiContract = {
 
   backup: {
     export: () => ipcRenderer.invoke('backup:export'),
-    import: () => ipcRenderer.invoke('backup:import')
+    import: () => ipcRenderer.invoke('backup:import'),
+    exportTransactionsCsv: () => ipcRenderer.invoke('backup:exportTransactionsCsv')
   }
 }
 

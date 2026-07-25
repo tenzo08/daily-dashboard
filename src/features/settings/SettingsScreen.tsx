@@ -112,6 +112,19 @@ export function SettingsScreen(): JSX.Element {
     setBackupBusy(false)
   }
 
+  async function handleExportTransactionsCsv(): Promise<void> {
+    setBackupBusy(true)
+    setBackupMessage(null)
+    setBackupError(null)
+    try {
+      const { path } = await api.backup.exportTransactionsCsv()
+      if (path) setBackupMessage(`Exported to ${path}`)
+    } catch (error) {
+      setBackupError(error instanceof Error ? error.message : String(error))
+    }
+    setBackupBusy(false)
+  }
+
   return (
     <div className="max-w-md flex-1 space-y-8 overflow-auto p-6">
       <h1 className="text-lg font-semibold text-graphite">Settings</h1>
@@ -196,6 +209,21 @@ export function SettingsScreen(): JSX.Element {
             Import data…
           </button>
         </div>
+
+        <div className="mt-4 border-t border-line pt-4">
+          <p className="mb-2 text-xs text-graphite-dim">
+            Or export just the transaction ledger as a plain CSV — for dropping into Excel/Sheets, not for restoring.
+          </p>
+          <button
+            type="button"
+            onClick={handleExportTransactionsCsv}
+            disabled={backupBusy}
+            className="rounded-control border border-line px-3 py-1.5 text-sm text-graphite-dim hover:bg-line/40 disabled:opacity-40"
+          >
+            Export transactions (CSV)…
+          </button>
+        </div>
+
         {backupMessage && <p className="mt-2 text-xs text-success">{backupMessage}</p>}
         {backupError && <p className="mt-2 text-xs text-danger">{backupError}</p>}
       </section>
