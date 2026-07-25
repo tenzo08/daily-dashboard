@@ -197,6 +197,8 @@ export interface CredentialRow extends EncryptedSecret {
   folder: string | null
   createdAt: string
   updatedAt: string
+  /** When the password itself last changed — distinct from updatedAt, which also bumps on a rename. */
+  secretUpdatedAt: string
 }
 
 export interface CredentialSummary {
@@ -221,6 +223,13 @@ export interface NewCredentialRow {
 export interface CredentialSecret {
   password: string
   notes: string | null
+}
+
+export type CredentialHealthIssue = 'weak' | 'reused' | 'old'
+
+export interface CredentialHealthEntry {
+  id: number
+  issues: CredentialHealthIssue[]
 }
 
 /** Renderer-facing input — plaintext password, encrypted by credentials.ipc.ts before it touches disk. */

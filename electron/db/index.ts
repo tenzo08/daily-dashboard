@@ -2,6 +2,7 @@ import Database from 'better-sqlite3'
 import { migration_0001_init } from './migrations/0001_init'
 import { migration_0002_vault_tasks_activity } from './migrations/0002_vault_tasks_activity'
 import { migration_0003_task_links } from './migrations/0003_task_links'
+import { migration_0004_credential_health } from './migrations/0004_credential_health'
 
 export type DB = Database.Database
 
@@ -15,7 +16,8 @@ interface Migration {
 const migrations: Migration[] = [
   { name: '0001_init', sql: migration_0001_init },
   { name: '0002_vault_tasks_activity', sql: migration_0002_vault_tasks_activity },
-  { name: '0003_task_links', sql: migration_0003_task_links }
+  { name: '0003_task_links', sql: migration_0003_task_links },
+  { name: '0004_credential_health', sql: migration_0004_credential_health }
 ]
 
 /**

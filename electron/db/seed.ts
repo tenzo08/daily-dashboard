@@ -84,6 +84,10 @@ async function main(): Promise<void> {
   const credentials = createCredentialsRepository(db)
   const activity = createActivityLogRepository(db)
 
+  // SEED_PIN lets credentials be seeded against an already-set real PIN —
+  // passed as an env var for one run only, never written to disk or logged.
+  const suppliedPin = process.env['SEED_PIN']
+
   let vaultKey: Buffer | null = null
   if (!auth.isPinSet()) {
     auth.setPin(DEV_PIN)
@@ -91,6 +95,19 @@ async function main(): Promise<void> {
     settings.set('vault_kdf_salt', salt)
     vaultKey = await deriveVaultKey(DEV_PIN, salt)
     console.log(`[seed] no PIN was set — set dev PIN to "${DEV_PIN}"`)
+  } else if (suppliedPin) {
+    const result = auth.verifyPin(suppliedPin)
+    if (result.ok) {
+      const salt = settings.get('vault_kdf_salt')
+      if (salt) {
+        vaultKey = await deriveVaultKey(suppliedPin, salt)
+        console.log('[seed] supplied PIN verified — vault unlocked for seeding')
+      } else {
+        console.log('[seed] PIN verified but no vault_kdf_salt found — skipping credentials')
+      }
+    } else {
+      console.log('[seed] supplied PIN was incorrect — skipping credentials')
+    }
   } else {
     console.log('[seed] a PIN is already set — will skip credential seeding (vault key unknown)')
   }

@@ -1,14 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '@/lib/api'
 import { Card } from '@/components/ui/Card'
-import type { CredentialSummary } from '../../../electron/db/types'
+import { StatusPill, type StatusPillTone } from '@/components/ui/StatusPill'
+import type { CredentialHealthIssue, CredentialSummary } from '../../../electron/db/types'
 import { CredentialForm } from './CredentialForm'
+
+const ISSUE_LABEL: Record<CredentialHealthIssue, string> = { weak: 'Weak', reused: 'Reused', old: 'Old' }
+const ISSUE_TONE: Record<CredentialHealthIssue, StatusPillTone> = { weak: 'danger', reused: 'warning', old: 'muted' }
 
 function CredentialRow({
   credential,
+  issues,
   onEdit
 }: {
   credential: CredentialSummary
+  issues: CredentialHealthIssue[]
   onEdit: () => void
 }): JSX.Element {
   const [revealed, setRevealed] = useState<string | null>(null)
@@ -36,7 +42,14 @@ function CredentialRow({
   return (
     <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3 last:border-b-0">
       <button type="button" onClick={onEdit} className="min-w-0 flex-1 text-left">
-        <div className="truncate text-sm font-medium text-graphite">{credential.title}</div>
+        <div className="flex items-center gap-2">
+          <span className="truncate text-sm font-medium text-graphite">{credential.title}</span>
+          {issues.map((issue) => (
+            <StatusPill key={issue} tone={ISSUE_TONE[issue]}>
+              {ISSUE_LABEL[issue]}
+            </StatusPill>
+          ))}
+        </div>
         <div className="truncate text-xs text-graphite-dim">
           {credential.username ?? '—'}
           {credential.folder ? ` · ${credential.folder}` : ''}
@@ -73,13 +86,16 @@ interface VaultScreenProps {
 
 export function VaultScreen({ initialCredentialId, onConsumedInitialSelection }: VaultScreenProps): JSX.Element {
   const [credentials, setCredentials] = useState<CredentialSummary[]>([])
+  const [health, setHealth] = useState<Map<number, CredentialHealthIssue[]>>(new Map())
   const [query, setQuery] = useState('')
   const [editing, setEditing] = useState<CredentialSummary | null>(null)
   const [showForm, setShowForm] = useState(false)
   const consumedIdRef = useRef<number | undefined>(undefined)
 
   const refresh = useCallback(async () => {
-    setCredentials(await api.credentials.list())
+    const [list, healthEntries] = await Promise.all([api.credentials.list(), api.credentials.health()])
+    setCredentials(list)
+    setHealth(new Map(healthEntries.map((e) => [e.id, e.issues])))
   }, [])
 
   useEffect(() => {
@@ -108,6 +124,7 @@ export function VaultScreen({ initialCredentialId, onConsumedInitialSelection }:
   const filtered = credentials.filter((c) =>
     `${c.title} ${c.username ?? ''} ${c.folder ?? ''}`.toLowerCase().includes(query.toLowerCase())
   )
+  const flaggedCount = health.size
 
   return (
     <div className="flex-1 overflow-auto p-6">
@@ -125,6 +142,12 @@ export function VaultScreen({ initialCredentialId, onConsumedInitialSelection }:
         </button>
       </div>
 
+      {flaggedCount > 0 && (
+        <div className="mb-4 rounded-card border border-warning/30 bg-warning-tint px-3.5 py-2 text-sm text-graphite">
+          <strong className="font-medium">{flaggedCount}</strong> {flaggedCount === 1 ? 'password needs' : 'passwords need'} attention — look for the Weak / Reused / Old tags below.
+        </div>
+      )}
+
       <input
         value={query}
         onChange={(event) => setQuery(event.target.value)}
@@ -137,6 +160,7 @@ export function VaultScreen({ initialCredentialId, onConsumedInitialSelection }:
           <CredentialRow
             key={credential.id}
             credential={credential}
+            issues={health.get(credential.id) ?? []}
             onEdit={() => {
               setEditing(credential)
               setShowForm(true)

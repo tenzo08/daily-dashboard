@@ -12,6 +12,7 @@ interface CredentialTableRow {
   secret_tag: string
   created_at: string
   updated_at: string
+  secret_updated_at: string
 }
 
 function mapRow(row: CredentialTableRow): CredentialRow {
@@ -25,7 +26,8 @@ function mapRow(row: CredentialTableRow): CredentialRow {
     secretIv: row.secret_iv,
     secretTag: row.secret_tag,
     createdAt: row.created_at,
-    updatedAt: row.updated_at
+    updatedAt: row.updated_at,
+    secretUpdatedAt: row.secret_updated_at
   }
 }
 
@@ -44,8 +46,8 @@ function mapSummary(row: CredentialTableRow): CredentialSummary {
 // Passwords never pass through here in plaintext.
 export function createCredentialsRepository(db: DB) {
   const insertStmt = db.prepare(`
-    INSERT INTO credentials (title, username, url, folder, secret_cipher, secret_iv, secret_tag)
-    VALUES (@title, @username, @url, @folder, @secretCipher, @secretIv, @secretTag)
+    INSERT INTO credentials (title, username, url, folder, secret_cipher, secret_iv, secret_tag, secret_updated_at)
+    VALUES (@title, @username, @url, @folder, @secretCipher, @secretIv, @secretTag, datetime('now'))
   `)
   const getStmt = db.prepare(`SELECT * FROM credentials WHERE id = ?`)
   const listStmt = db.prepare(`SELECT * FROM credentials ORDER BY title COLLATE NOCASE`)
@@ -56,7 +58,8 @@ export function createCredentialsRepository(db: DB) {
   `)
   const updateSecretStmt = db.prepare(`
     UPDATE credentials
-    SET secret_cipher = @secretCipher, secret_iv = @secretIv, secret_tag = @secretTag, updated_at = datetime('now')
+    SET secret_cipher = @secretCipher, secret_iv = @secretIv, secret_tag = @secretTag,
+        updated_at = datetime('now'), secret_updated_at = datetime('now')
     WHERE id = @id
   `)
   const rekeySecretStmt = db.prepare(`
@@ -106,11 +109,12 @@ export function createCredentialsRepository(db: DB) {
       return mapSummary(getStmt.get(id) as CredentialTableRow)
     },
 
+    /** Bumps secret_updated_at — an actual password change, not just a rename. */
     updateSecret(id: number, secret: EncryptedSecret): void {
       updateSecretStmt.run({ id, ...secret })
     },
 
-    /** Used only by the PIN-change re-encryption pass — doesn't bump updated_at. */
+    /** Used only by the PIN-change re-encryption pass — same password, new key, so secret_updated_at is untouched. */
     rekeySecret(id: number, secret: EncryptedSecret): void {
       rekeySecretStmt.run({ id, ...secret })
     },

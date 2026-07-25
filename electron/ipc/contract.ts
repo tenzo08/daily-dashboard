@@ -14,6 +14,7 @@ import type {
   BudgetWithSpend,
   Category,
   CategorySpend,
+  CredentialHealthEntry,
   CredentialSecret,
   CredentialSummary,
   NewAccount,
@@ -131,6 +132,8 @@ export interface ApiContract {
     delete: (id: number) => Promise<void>
     /** Decrypts on demand — list() never returns plaintext (see credentials.ipc.ts). */
     reveal: (id: number) => Promise<CredentialSecret>
+    /** Weak/reused/old flags only — never returns plaintext passwords. */
+    health: () => Promise<CredentialHealthEntry[]>
   }
 
   tasks: {

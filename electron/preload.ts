@@ -67,7 +67,8 @@ const api: ApiContract = {
     create: (input) => ipcRenderer.invoke('credentials:create', input),
     update: (id, patch) => ipcRenderer.invoke('credentials:update', id, patch),
     delete: (id) => ipcRenderer.invoke('credentials:delete', id),
-    reveal: (id) => ipcRenderer.invoke('credentials:reveal', id)
+    reveal: (id) => ipcRenderer.invoke('credentials:reveal', id),
+    health: () => ipcRenderer.invoke('credentials:health')
   },
 
   tasks: {

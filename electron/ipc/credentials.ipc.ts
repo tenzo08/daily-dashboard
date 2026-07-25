@@ -1,10 +1,13 @@
 import type { DB } from '../db'
 import { createActivityLogRepository } from '../db/repositories/activityLog'
 import { createCredentialsRepository } from '../db/repositories/credentials'
-import type { CredentialSecret, NewCredentialInput } from '../db/types'
+import type { CredentialHealthEntry, CredentialHealthIssue, CredentialSecret, NewCredentialInput } from '../db/types'
 import { decryptSecret, encryptSecret } from '../lock/vaultCrypto'
 import { vaultSession } from '../lock/vaultSession'
+import { estimatePasswordStrength } from '../../src/lib/generatePassword'
 import { registerHandler } from './registerHandler'
+
+const OLD_PASSWORD_DAYS = 365
 
 function packSecret(secret: CredentialSecret): string {
   return JSON.stringify(secret)
@@ -69,5 +72,32 @@ export function registerCredentialsHandlers(db: DB): void {
     const row = credentials.get(id)
     if (!row) throw new Error(`Credential ${id} not found`)
     return unpackSecret(decryptSecret(row, key))
+  })
+
+  // Decrypts every password server-side to check for weak/reused/old ones —
+  // only the resulting flags cross back over IPC, never the plaintexts
+  // themselves (reveal() stays the one path that returns a real password).
+  registerHandler('credentials:health', (): CredentialHealthEntry[] => {
+    const key = vaultSession.require()
+    const rows = credentials.listAll()
+
+    const passwords = rows.map((row) => unpackSecret(decryptSecret(row, key)).password)
+    const countByPassword = new Map<string, number>()
+    for (const password of passwords) {
+      countByPassword.set(password, (countByPassword.get(password) ?? 0) + 1)
+    }
+
+    const cutoff = Date.now() - OLD_PASSWORD_DAYS * 24 * 60 * 60 * 1000
+
+    return rows
+      .map((row, i) => {
+        const password = passwords[i]
+        const issues: CredentialHealthIssue[] = []
+        if (estimatePasswordStrength(password) === 'weak') issues.push('weak')
+        if ((countByPassword.get(password) ?? 0) > 1) issues.push('reused')
+        if (new Date(row.secretUpdatedAt).getTime() < cutoff) issues.push('old')
+        return { id: row.id, issues }
+      })
+      .filter((entry) => entry.issues.length > 0)
   })
 }
