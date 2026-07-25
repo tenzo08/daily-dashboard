@@ -41,6 +41,11 @@ export function registerNotesHandlers(db: DB): void {
     }
   )
   registerHandler('notes:getOrCreateDailyNote', () => notes.getOrCreateDailyNote())
+  registerHandler('notes:delete', (id: number) => {
+    const note = notes.getNote(id)
+    notes.delete(id)
+    if (note) activity.log('note.deleted', `Deleted note — ${note.title}`)
+  })
 
   registerHandler('notes:listTags', () => tags.list())
   registerHandler('notes:tagsForNote', (noteId: number) => tags.tagsForNote(noteId))

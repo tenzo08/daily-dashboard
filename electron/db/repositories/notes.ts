@@ -56,6 +56,7 @@ export function createNotesRepository(db: DB) {
     UPDATE notes SET folder_id = @folderId, title = @title, body_md = @bodyMd, updated_at = datetime('now')
     WHERE id = @id
   `)
+  const deleteStmt = db.prepare(`DELETE FROM notes WHERE id = ?`)
 
   return {
     listNotes(filter: NoteFilter = {}): NoteSummary[] {
@@ -108,6 +109,10 @@ export function createNotesRepository(db: DB) {
         bodyMd: patch.bodyMd ?? current.body_md
       })
       return mapNote(getStmt.get(id) as NoteRow)
+    },
+
+    delete(id: number): void {
+      deleteStmt.run(id)
     },
 
     getOrCreateDailyNote(): Note {

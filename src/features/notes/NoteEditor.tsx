@@ -6,6 +6,7 @@ interface NoteEditorProps {
   noteId: number
   onSaved: () => void
   onTagsChanged: () => void
+  onDeleted: () => void
   /** Set by AppShell — jumps to Tasks and opens the given task for editing. */
   onOpenTask: (taskId: number) => void
 }
@@ -16,7 +17,7 @@ type SaveState = 'idle' | 'saving' | 'saved'
 // FR-7 asks for bold/italic/lists/checkboxes, which Markdown syntax covers
 // without pulling in an editor dependency (Tiptap/Milkdown) this app
 // doesn't otherwise need. Revisit if richer formatting is requested.
-export function NoteEditor({ noteId, onSaved, onTagsChanged, onOpenTask }: NoteEditorProps): JSX.Element {
+export function NoteEditor({ noteId, onSaved, onTagsChanged, onDeleted, onOpenTask }: NoteEditorProps): JSX.Element {
   const [title, setTitle] = useState('')
   const [bodyMd, setBodyMd] = useState('')
   const [noteTags, setNoteTags] = useState<Tag[]>([])
@@ -104,6 +105,11 @@ export function NoteEditor({ noteId, onSaved, onTagsChanged, onOpenTask }: NoteE
     onTagsChanged()
   }
 
+  async function handleDelete(): Promise<void> {
+    await api.notes.delete(noteId)
+    onDeleted()
+  }
+
   return (
     <div className="flex flex-1 flex-col bg-surface">
       <div className="flex items-center gap-2 border-b border-line p-3">
@@ -116,6 +122,13 @@ export function NoteEditor({ noteId, onSaved, onTagsChanged, onOpenTask }: NoteE
         <span className="font-mono text-[11px] uppercase tracking-wider text-graphite-dim">
           {saveState === 'saving' ? 'Saving…' : saveState === 'saved' ? 'Saved' : ''}
         </span>
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="rounded-control px-2 py-1 text-xs text-graphite-dim hover:text-danger"
+        >
+          Delete
+        </button>
       </div>
 
       <div className="flex gap-1 border-b border-line p-2">

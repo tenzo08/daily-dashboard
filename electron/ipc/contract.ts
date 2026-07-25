@@ -83,6 +83,7 @@ export interface ApiContract {
       patch: { title?: string; bodyMd?: string; folderId?: number | null }
     ) => Promise<Note>
     getOrCreateDailyNote: () => Promise<Note>
+    delete: (id: number) => Promise<void>
     listTags: () => Promise<Tag[]>
     tagsForNote: (noteId: number) => Promise<Tag[]>
     addTagToNote: (noteId: number, tagName: string) => Promise<Tag>

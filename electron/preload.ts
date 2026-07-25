@@ -18,6 +18,7 @@ const api: ApiContract = {
     createNote: (input) => ipcRenderer.invoke('notes:createNote', input),
     saveNote: (id, patch) => ipcRenderer.invoke('notes:saveNote', id, patch),
     getOrCreateDailyNote: () => ipcRenderer.invoke('notes:getOrCreateDailyNote'),
+    delete: (id) => ipcRenderer.invoke('notes:delete', id),
     listTags: () => ipcRenderer.invoke('notes:listTags'),
     tagsForNote: (noteId) => ipcRenderer.invoke('notes:tagsForNote', noteId),
     addTagToNote: (noteId, tagName) => ipcRenderer.invoke('notes:addTagToNote', noteId, tagName),

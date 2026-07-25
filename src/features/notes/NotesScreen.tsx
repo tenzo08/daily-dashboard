@@ -56,6 +56,11 @@ export function NotesScreen({ initialNoteId, onOpenTask }: NotesScreenProps): JS
     setSelectedNoteId(note.id)
   }
 
+  async function handleNoteDeleted(): Promise<void> {
+    setSelectedNoteId(null)
+    await refreshNotes()
+  }
+
   return (
     <div className="flex h-full flex-1">
       <FolderTree
@@ -82,6 +87,7 @@ export function NotesScreen({ initialNoteId, onOpenTask }: NotesScreenProps): JS
           noteId={selectedNoteId}
           onSaved={refreshNotes}
           onTagsChanged={refreshTags}
+          onDeleted={handleNoteDeleted}
           onOpenTask={onOpenTask}
         />
       ) : (
