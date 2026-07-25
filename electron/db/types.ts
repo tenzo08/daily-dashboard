@@ -246,6 +246,7 @@ export interface NewCredentialInput {
 
 export type TaskStatus = 'todo' | 'in_progress' | 'done'
 export type TaskPriority = 'low' | 'medium' | 'high'
+export type TaskRecurrenceRule = 'daily' | 'weekly' | 'monthly'
 
 export interface Task {
   id: number
@@ -259,6 +260,8 @@ export interface Task {
    *  schedule item it came from. Independent, both optional, no exclusivity. */
   linkedNoteId: number | null
   linkedScheduleItemId: number | null
+  /** Completing a recurring task spawns its next copy — see tasks.ipc.ts. */
+  recurrenceRule: TaskRecurrenceRule | null
   createdAt: string
   updatedAt: string
 }
@@ -270,6 +273,7 @@ export interface NewTask {
   dueDate?: string
   linkedNoteId?: number | null
   linkedScheduleItemId?: number | null
+  recurrenceRule?: TaskRecurrenceRule | null
 }
 
 export interface TaskFilter {

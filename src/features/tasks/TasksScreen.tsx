@@ -42,8 +42,13 @@ function TaskRow({
       />
 
       <button type="button" onClick={onEdit} className="min-w-0 flex-1 text-left">
-        <span className={`block truncate text-sm font-medium ${task.status === 'done' ? 'text-graphite-dim line-through' : 'text-graphite'}`}>
-          {task.title}
+        <span className={`flex items-center gap-1.5 truncate text-sm font-medium ${task.status === 'done' ? 'text-graphite-dim line-through' : 'text-graphite'}`}>
+          {task.recurrenceRule && (
+            <span title={`Repeats ${task.recurrenceRule}`} className="shrink-0 text-graphite-dim">
+              🔁
+            </span>
+          )}
+          <span className="truncate">{task.title}</span>
         </span>
         {task.description && <span className="block truncate text-xs text-graphite-dim">{task.description}</span>}
       </button>

@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { api } from '@/lib/api'
-import type { NewTask, NoteSummary, ScheduleItem, Task, TaskPriority } from '../../../electron/db/types'
+import type { NewTask, NoteSummary, ScheduleItem, Task, TaskPriority, TaskRecurrenceRule } from '../../../electron/db/types'
 
 interface TaskFormProps {
   initial: Task | null
@@ -10,6 +10,7 @@ interface TaskFormProps {
 }
 
 const PRIORITIES: TaskPriority[] = ['low', 'medium', 'high']
+const RECURRENCES: TaskRecurrenceRule[] = ['daily', 'weekly', 'monthly']
 const NONE = ''
 
 export function TaskForm({ initial, onSaved, onCancel, onDelete }: TaskFormProps): JSX.Element {
@@ -17,6 +18,7 @@ export function TaskForm({ initial, onSaved, onCancel, onDelete }: TaskFormProps
   const [description, setDescription] = useState(initial?.description ?? '')
   const [priority, setPriority] = useState<TaskPriority>(initial?.priority ?? 'medium')
   const [dueDate, setDueDate] = useState(initial?.dueDate ?? '')
+  const [recurrenceRule, setRecurrenceRule] = useState<TaskRecurrenceRule | ''>(initial?.recurrenceRule ?? NONE)
   const [linkedNoteId, setLinkedNoteId] = useState<number | ''>(initial?.linkedNoteId ?? NONE)
   const [linkedScheduleItemId, setLinkedScheduleItemId] = useState<number | ''>(
     initial?.linkedScheduleItemId ?? NONE
@@ -40,6 +42,7 @@ export function TaskForm({ initial, onSaved, onCancel, onDelete }: TaskFormProps
       description: description.trim() || undefined,
       priority,
       dueDate: dueDate || undefined,
+      recurrenceRule: recurrenceRule === NONE ? null : recurrenceRule,
       linkedNoteId: linkedNoteId === NONE ? null : linkedNoteId,
       linkedScheduleItemId: linkedScheduleItemId === NONE ? null : linkedScheduleItemId
     }
@@ -108,6 +111,27 @@ export function TaskForm({ initial, onSaved, onCancel, onDelete }: TaskFormProps
               />
             </label>
           </div>
+
+          <label className="block text-xs text-graphite-dim">
+            Repeat
+            <select
+              value={recurrenceRule}
+              onChange={(event) => setRecurrenceRule(event.target.value as TaskRecurrenceRule | '')}
+              className="mt-1 w-full rounded-control border border-line bg-paper px-2 py-1.5 text-sm capitalize text-graphite focus:border-brass focus:outline-none"
+            >
+              <option value={NONE}>Does not repeat</option>
+              {RECURRENCES.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </label>
+          {recurrenceRule && (
+            <p className="-mt-2 text-[11px] text-graphite-dim">
+              Completing this task creates the next one, due {recurrenceRule}.
+            </p>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-xs text-graphite-dim">

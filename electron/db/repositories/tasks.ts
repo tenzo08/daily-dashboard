@@ -1,5 +1,5 @@
 import type { DB } from '../index'
-import type { NewTask, Task, TaskFilter, TaskPriority, TaskStatus } from '../types'
+import type { NewTask, Task, TaskFilter, TaskPriority, TaskRecurrenceRule, TaskStatus } from '../types'
 
 interface TaskRow {
   id: number
@@ -11,6 +11,7 @@ interface TaskRow {
   completed_at: string | null
   linked_note_id: number | null
   linked_schedule_item_id: number | null
+  recurrence_rule: TaskRecurrenceRule | null
   created_at: string
   updated_at: string
 }
@@ -26,6 +27,7 @@ function mapTask(row: TaskRow): Task {
     completedAt: row.completed_at,
     linkedNoteId: row.linked_note_id,
     linkedScheduleItemId: row.linked_schedule_item_id,
+    recurrenceRule: row.recurrence_rule,
     createdAt: row.created_at,
     updatedAt: row.updated_at
   }
@@ -35,15 +37,15 @@ const ORDER_BY = `ORDER BY (due_date IS NULL), due_date, priority = 'high' DESC,
 
 export function createTasksRepository(db: DB) {
   const insertStmt = db.prepare(`
-    INSERT INTO tasks (title, description, priority, due_date, linked_note_id, linked_schedule_item_id)
-    VALUES (@title, @description, @priority, @dueDate, @linkedNoteId, @linkedScheduleItemId)
+    INSERT INTO tasks (title, description, priority, due_date, linked_note_id, linked_schedule_item_id, recurrence_rule)
+    VALUES (@title, @description, @priority, @dueDate, @linkedNoteId, @linkedScheduleItemId, @recurrenceRule)
   `)
   const getStmt = db.prepare(`SELECT * FROM tasks WHERE id = ?`)
   const updateStmt = db.prepare(`
     UPDATE tasks
     SET title = @title, description = @description, priority = @priority, due_date = @dueDate,
         linked_note_id = @linkedNoteId, linked_schedule_item_id = @linkedScheduleItemId,
-        updated_at = datetime('now')
+        recurrence_rule = @recurrenceRule, updated_at = datetime('now')
     WHERE id = @id
   `)
   const setStatusStmt = db.prepare(`
@@ -89,7 +91,8 @@ export function createTasksRepository(db: DB) {
         priority: input.priority ?? 'medium',
         dueDate: input.dueDate ?? null,
         linkedNoteId: input.linkedNoteId ?? null,
-        linkedScheduleItemId: input.linkedScheduleItemId ?? null
+        linkedScheduleItemId: input.linkedScheduleItemId ?? null,
+        recurrenceRule: input.recurrenceRule ?? null
       })
       return mapTask(getStmt.get(result.lastInsertRowid) as TaskRow)
     },
@@ -104,7 +107,8 @@ export function createTasksRepository(db: DB) {
         dueDate: patch.dueDate !== undefined ? patch.dueDate : current.due_date,
         linkedNoteId: patch.linkedNoteId !== undefined ? patch.linkedNoteId : current.linked_note_id,
         linkedScheduleItemId:
-          patch.linkedScheduleItemId !== undefined ? patch.linkedScheduleItemId : current.linked_schedule_item_id
+          patch.linkedScheduleItemId !== undefined ? patch.linkedScheduleItemId : current.linked_schedule_item_id,
+        recurrenceRule: patch.recurrenceRule !== undefined ? patch.recurrenceRule : current.recurrence_rule
       })
       return mapTask(getStmt.get(id) as TaskRow)
     },
